@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Permissions — Cynthia Cheng</title>
+  <script>
+    /* Apply handoff class before first paint to skip a second entrance */
+    (function () {
+      try {
+        var raw =
+          sessionStorage.getItem('portfolio-page-transition') ||
+          sessionStorage.getItem('portfolio-circular-expand');
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (data && (data.mode === 'overlay-complete' || data.mode === 'skip-motion')) {
+          document.documentElement.classList.add('expand-handoff');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preload" as="image" href="./assets/permissions-hero-CZXbDRNi.png?v=2" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: "Exposure";
+      src: url("./assets/Exposure-Trial-10-Cvo-Gnpf.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Nav Sans";
+      src: url("./assets/NavSans-BlUVklqW.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Category Sans";
+      src: url("./assets/CategorySans-B40WzpMT.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Medium";
+      src: url("./assets/Inter-Medium-Cerq10X2.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Bold";
+      src: url("./assets/Inter-Bold-Dk21gjM7.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Regular";
+      src: url("./assets/Inter-Regular-B6Jjae07.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      /* Dark underlay while page entrance is pending */
+      background: #1a1a1a;
+      /* Reserve scrollbar space — prevents layout jump when overflow toggles */
+      scrollbar-gutter: stable;
+    }
+    body {
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body.is-page-ready {
+      background: #fff;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    :root {
+      --pad: clamp(24px, 5vw, 80px);
+      --content: 1120px;
+      --section-y: clamp(72px, 9vw, 112px);
+      --ink: #222;
+      --muted: #717171;
+      --line: #e8e8e8;
+      --soft: #f2f2f2;
+      --before: #d64545;
+      --after: #2f9e6b;
+    }
+
+    /* ── Nav (match home: 22px base, 240px inset ≥1100px) ── */
+    .nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      margin: 0;
+      padding: 26px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+      box-sizing: border-box;
+    }
+    @media (min-width: 1100px) {
+      .nav {
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+    .nav-home {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.18s;
+      text-decoration: none;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.14); }
+
+    /* ── Page fade + scale entrance (opacity / transform only — no circle clip-path) ── */
+    .page-reveal {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      opacity: 0;
+      transform: scale(1.03);
+      transform-origin: center center;
+      background: #1a1a1a;
+      will-change: opacity, transform;
+    }
+    .page-reveal.is-hydrated,
+    .page-reveal.is-ready {
+      background: #fff;
+    }
+    /* Arriving from home card overlay — show final layout immediately */
+    html.expand-handoff,
+    html.expand-handoff body {
+      background: #fff;
+    }
+    html.expand-handoff .page-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      background: #fff;
+      will-change: auto;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .page-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        background: #fff;
+        will-change: auto;
+      }
+    }
+
+    /* ── Case hero ── */
+    .case-hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #1a1a1a;
+      /* Decorative curved bottom only (not a transition wipe) */
+      clip-path: url(#hero-convex-clip);
+    }
+    .case-hero__media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center;
+         object-position: center;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .case-hero__title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      margin: 0;
+      padding: 0 24px;
+      width: -moz-max-content;
+      width: max-content;
+      max-width: calc(100% - 48px);
+      transform: translate(-50%, -50%);
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: clamp(64px, 10vw, 136px);
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+      color: #fff;
+      text-align: center;
+      text-wrap: balance;
+    }
+    .case-hero__title .hero-title-reveal__char {
+      display: inline-block;
+      white-space: pre;
+    }
+    .hero-clip-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    /* ── Shared sections ── */
+    .section {
+      padding: var(--section-y) var(--pad);
+    }
+    .section--tight {
+      padding-top: var(--section-y);
+      padding-bottom: var(--section-y);
+    }
+    .section__inner {
+      max-width: var(--content);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .display {
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0 0 20px;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+    .split .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #56483b;
+    }
+    .split .display {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+    }
+    .split .body {
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-weight: 400;
+    }
+    .lede {
+      font-size: clamp(16px, 1.4vw, 18px);
+      line-height: 1.65;
+      color: #444;
+      max-width: 62ch;
+      margin: 0;
+    }
+    .body {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #444;
+      margin: 0;
+    }
+    .body + .body { margin-top: 16px; }
+
+    /* Overview + stats — matches reference: badge, left copy, big metrics */
+    .overview {
+      text-align: left;
+      padding-top: 0;
+      margin-top: -clamp(160px, 22vw, 280px);
+      position: relative;
+      z-index: 2;
+    }
+    .launch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto 40px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      color: #333;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .overview__badge-wrap {
+      display: flex;
+      justify-content: center;
+    }
+    .launch-badge__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #3fc11d;
+      flex-shrink: 0;
+    }
+    .overview .display {
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(40px, 5.2vw, 60px);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin: 0 0 22px;
+      width: 100%;
+      max-width: none;
+      text-wrap: balance;
+    }
+    .overview .lede {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 1.6vw, 22px);
+      font-weight: 500;
+      line-height: 1.65;
+      color: #222;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(24px, 4vw, 48px);
+      margin-top: clamp(48px, 6vw, 72px);
+      padding-top: 0;
+      border-top: none;
+      align-items: start;
+    }
+    .stat__label {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin: 0 0 12px;
+    }
+    .stat__value {
+      font-family: "Inter Bold", Inter, system-ui, sans-serif;
+      font-size: clamp(22px, 2.4vw, 28px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: var(--ink);
+    }
+    .stat__value--xl {
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .stat__value--xl .hero-title-reveal__char {
+      display: inline-block;
+      white-space: pre;
+    }
+    .stat__meta {
+      margin: 10px 0 0;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: #56483b;
+      max-width: 28ch;
+    }
+    .stat__meta--label {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin-top: 28px;
+    }
+    .stat__team {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: #56483b;
+    }
+    .stat__team li + li {
+      margin-top: 2px;
+    }
+    .stat__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .stat__link:hover { opacity: 0.7; }
+
+    /* Split rows */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .split--top { align-items: start; }
+    .media-frame {
+      background: var(--soft);
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .media-frame img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .media-frame--tall { aspect-ratio: 3 / 4; }
+    .media-frame--wide { aspect-ratio: 16 / 10; }
+
+    /* Context: phone + floating cards — match reference spacing & stagger */
+    .device-stage {
+      position: relative;
+      width: 100%;
+      min-height: 600px;
+      max-height: none;
+      aspect-ratio: auto;
+      overflow: visible;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border-radius: 0;
+      padding: 12px 0;
+    }
+    .device-stage__phone {
+      position: relative;
+      z-index: 1;
+      width: clamp(280px, 68%, 400px);
+      height: auto;
+      max-height: none;
+      -o-object-fit: contain;
+         object-fit: contain;
+      display: block;
+      background: transparent;
+      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.08));
+      pointer-events: none;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
+    }
+    .device-stage__card {
+      position: absolute;
+      z-index: 2;
+      width: clamp(210px, 58%, 280px);
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      opacity: 0;
+      pointer-events: none;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
+      will-change: transform, opacity;
+      transition:
+        opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+        transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    /*
+      Settled layout (zig-zag, clear gutter from phone):
+      1 top-left  → 2 mid-right  → 3 mid-left  → 4 bottom-right
+    */
+    .device-stage__card--1 {
+      left: 2%;
+      top: 12%;
+      transform: translate3d(-85%, 0, 0);
+      transition-delay: 0s;
+    }
+    .device-stage__card--2 {
+      right: 1.5%;
+      top: 26%;
+      transform: translate3d(85%, 0, 0);
+      transition-delay: 0.1s;
+    }
+    .device-stage__card--3 {
+      left: 2%;
+      top: 52%;
+      transform: translate3d(-85%, 0, 0);
+      transition-delay: 0.2s;
+    }
+    .device-stage__card--4 {
+      right: 1.5%;
+      top: 66%;
+      transform: translate3d(85%, 0, 0);
+      transition-delay: 0.3s;
+    }
+    .device-stage.is-inview .device-stage__card--1,
+    .device-stage.is-inview .device-stage__card--2,
+    .device-stage.is-inview .device-stage__card--3,
+    .device-stage.is-inview .device-stage__card--4 {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    /* After first play, lock settled look so scrolling away never reverses */
+    .device-stage.is-settled .device-stage__card {
+      opacity: 1 !important;
+      transform: translate3d(0, 0, 0) !important;
+      transition: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .device-stage {
+        aspect-ratio: auto;
+        max-height: none;
+        min-height: 520px;
+      }
+      .device-stage__phone {
+        width: clamp(240px, 62%, 300px);
+      }
+      .device-stage__card {
+        width: clamp(180px, 54%, 240px);
+      }
+    }
+
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      background: var(--soft);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Problem / Solution — stacked full-width blocks */
+    .ps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(56px, 7vw, 96px);
+    }
+    .ps-card {
+      width: 100%;
+    }
+    .ps-card .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #56483b;
+    }
+    .ps-card .display {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin: 0 0 20px;
+      width: 100%;
+      max-width: none;
+    }
+    .ps-card--problem-full .display {
+      margin-bottom: clamp(40px, 5vw, 64px);
+      text-wrap: wrap;
+      /* Same content column as overview + quote cards (1120px) */
+      max-width: none;
+      width: 100%;
+    }
+    .ps-card .body {
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-weight: 400;
+      width: 100%;
+      max-width: none;
+    }
+    .ps-card__media {
+      margin-top: 24px;
+      width: 100%;
+      min-height: 280px;
+      height: auto;
+      background: var(--soft);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Expanding persona cards under Problem */
+    .quote-grid {
+      margin-top: 28px;
+      display: flex;
+      width: 100%;
+      gap: 16px;
+      height: 500px;
+    }
+    .quote-card {
+      position: relative;
+      flex: 1 1 0;
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #1a1a1a;
+      color: #fff;
+      cursor: default;
+      isolation: isolate;
+      transition: flex 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+    }
+    .quote-grid:hover .quote-card {
+      flex: 0.75 1 0;
+    }
+    .quote-card:hover {
+      flex: 3 1 0 !important;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+    .quote-card__media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center top;
+         object-position: center top;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      transition: transform 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__media {
+      transform: translateZ(0) scale(1.03);
+    }
+    .quote-card__shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.4) 42%,
+        transparent 72%
+      );
+      opacity: 0.85;
+      transition: opacity 0.5s ease-in-out;
+      pointer-events: none;
+    }
+    .quote-card:hover .quote-card__shade {
+      opacity: 1;
+    }
+    .quote-card__content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      padding: 22px 18px;
+      transform: translateY(8px);
+      opacity: 0.9;
+      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__content {
+      transform: translateY(0);
+      opacity: 1;
+      padding: 28px 24px;
+    }
+    .quote-card__content::before {
+      content: "“";
+      position: absolute;
+      left: 12px;
+      bottom: 64px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 56px;
+      line-height: 1;
+      color: #fff;
+      opacity: 0.18;
+      pointer-events: none;
+      transition: font-size 0.5s ease-in-out, bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__content::before {
+      font-size: 80px;
+      bottom: 88px;
+      opacity: 0.22;
+    }
+    .quote-card__quote {
+      position: relative;
+      margin: 0;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-wrap: pretty;
+      transition: font-size 0.5s ease-in-out, line-height 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__quote {
+      font-size: 20px;
+      line-height: 1.45;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+      display: block;
+    }
+    .quote-card__byline {
+      position: relative;
+      margin: 10px 0 0;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: font-size 0.5s ease-in-out, margin 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__byline {
+      font-size: 15px;
+      margin-top: 14px;
+      white-space: normal;
+      overflow: visible;
+    }
+
+    @media (max-width: 900px) {
+      .quote-grid {
+        flex-direction: column;
+        height: auto;
+        gap: 16px;
+      }
+      .quote-grid:hover .quote-card,
+      .quote-card,
+      .quote-card:hover {
+        flex: none !important;
+      }
+      .quote-card {
+        height: 380px;
+        min-height: 380px;
+      }
+      .quote-card__content {
+        transform: none;
+        opacity: 1;
+      }
+      .quote-card__shade {
+        opacity: 1;
+      }
+    }
+
+    .section--ps {
+      padding-bottom: var(--section-y);
+      overflow: visible;
+    }
+
+    /* Black banner */
+    .banner {
+      position: relative;
+      z-index: 2;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin-block: var(--section-y);
+      padding: var(--section-y) var(--pad);
+    }
+    .banner__eyebrow {
+      margin: 0 auto 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .banner p {
+      margin: 0 auto;
+      max-width: 820px;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -0.015em;
+      text-wrap: balance;
+    }
+    .banner--challenge {
+      text-align: center;
+    }
+    .banner--challenge .banner__inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .banner.banner--challenge .banner__eyebrow {
+      margin: 0 auto 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #c4b5a5;
+    }
+    .banner.banner--challenge .banner__title {
+      margin: 0 auto;
+      max-width: none;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #fff;
+      text-wrap: balance;
+    }
+
+    /* Insight blocks */
+    .insight {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .insight__stack {
+      display: grid;
+      gap: 12px;
+    }
+    .insight__stack .media-frame {
+      aspect-ratio: 16 / 10;
+    }
+    .insight ul {
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+    .insight li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: #444;
+    }
+    .insight li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.7em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #222;
+    }
+
+    /* Research / rethink — photo grid + findings */
+    .rethink {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(36px, 5vw, 56px);
+    }
+    .rethink__intro {
+      max-width: 62ch;
+    }
+    .rethink__intro--wide {
+      max-width: none;
+      width: 100%;
+    }
+    .rethink__intro .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin: 0 0 16px;
+    }
+    .rethink__intro .display {
+      width: 100%;
+      max-width: none;
+      margin: 0 0 20px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #222;
+      text-wrap: wrap;
+    }
+    .rethink__intro .body {
+      margin: 0;
+      width: 100%;
+      max-width: none;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: #444;
+    }
+    .rethink__row {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: start;
+    }
+    .rethink__row--vcenter {
+      align-items: center;
+    }
+    .rethink__photos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .rethink__photo {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--soft);
+      aspect-ratio: 4 / 3;
+    }
+    .rethink__photo img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      display: block;
+    }
+    .rethink__findings {
+      display: grid;
+      gap: clamp(28px, 3.5vw, 40px);
+      padding-top: 4px;
+    }
+    .rethink__finding h3 {
+      margin: 0 0 10px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 1.8vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+    .rethink__finding h3 span {
+      font-weight: 500;
+    }
+    .rethink__finding p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555;
+    }
+    .rethink__blueprint-diagram {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .rethink__blueprint-diagram img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .rethink__finding-title {
+      margin: 0 0 10px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    /* Persona insights table */
+    .persona-table {
+      width: 100%;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      color: #222;
+    }
+    .persona-table__legend {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 0 0 28px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+    }
+    .persona-table__legend-label {
+      margin-right: 4px;
+    }
+    .persona-table__swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .persona-table__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .persona-table__dot--10 { background: #c8c8c8; }
+    .persona-table__dot--200 { background: #555; }
+    .persona-table__dot--1000 { background: #f05023; }
+    .persona-table__list {
+      display: grid;
+      grid-template-columns:
+        200px
+        40px
+        minmax(0, 1.2fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+      -moz-column-gap: clamp(18px, 2.5vw, 36px);
+           column-gap: clamp(18px, 2.5vw, 36px);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: none;
+    }
+    .persona-table__row {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      align-items: start;
+      padding: clamp(28px, 3.5vw, 40px) 0;
+      border-bottom: 1px solid #e6e6e6;
+    }
+    .persona-table__row:last-child {
+      border-bottom: none;
+    }
+    .persona-table__identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+    .persona-table__avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center top;
+         object-position: center top;
+      flex-shrink: 0;
+      background: #eee;
+    }
+    .persona-table__name {
+      margin: 0;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #111;
+      line-height: 1.25;
+    }
+    .persona-table__role {
+      margin: 4px 0 0;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #8a8a8a;
+      line-height: 1.3;
+    }
+    .persona-table__sizes {
+      display: flex;
+      align-items: center;
+      align-self: center;
+      gap: 0;
+    }
+    .persona-table__sizes .persona-table__dot + .persona-table__dot {
+      margin-left: -5px;
+    }
+    .persona-table__quote {
+      position: relative;
+      margin: 0;
+      padding: 0.55em 0.2em 0.55em 0.35em;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: #444;
+      quotes: none;
+    }
+    .persona-table__quote strong {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 600;
+      font-style: italic;
+      color: #222;
+    }
+    .persona-table__quote-mark {
+      position: absolute;
+      z-index: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: clamp(56px, 7vw, 88px);
+      font-style: normal;
+      font-weight: 400;
+      line-height: 0.8;
+      color: rgba(0, 0, 0, 0.08);
+      pointer-events: none;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
+    }
+    .persona-table__quote-mark--open {
+      top: 0;
+      left: -0.08em;
+    }
+    .persona-table__quote-mark--close {
+      right: -0.2em;
+      bottom: -0.45em;
+    }
+    .persona-table__meta-block {
+      margin: 0;
+      min-width: 0;
+      width: 100%;
+    }
+    .persona-table__goals {
+      grid-column: 4;
+    }
+    .persona-table__frustrations {
+      grid-column: 5;
+    }
+    .persona-table__meta-label {
+      margin: 0 0 4px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #222;
+    }
+    .persona-table__meta-text {
+      margin: 0;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: #666;
+    }
+
+    @media (max-width: 900px) {
+      .persona-table__list {
+        grid-template-columns: 1fr;
+        -moz-column-gap: 0;
+             column-gap: 0;
+      }
+      .persona-table__row {
+        display: flex;
+        flex-direction: column;
+        grid-column: auto;
+        gap: 16px;
+        padding: 28px 0;
+      }
+      .persona-table__goals,
+      .persona-table__frustrations {
+        grid-column: auto;
+      }
+      .persona-table__sizes {
+        padding-left: 88px;
+      }
+      .persona-table__quote {
+        padding: 8px 8px 8px 16px;
+      }
+    }
+
+    .rethink__split {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .rethink__split-copy .eyebrow {
+      margin-bottom: 12px;
+    }
+    .rethink__split-copy .display {
+      width: 100%;
+      max-width: none;
+      margin: 0 0 18px;
+      font-size: clamp(26px, 3vw, 36px);
+      line-height: 1.2;
+    }
+    .rethink__split-copy .body {
+      margin: 0;
+      width: 100%;
+      max-width: none;
+    }
+    .rethink__blueprint {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      min-height: 420px;
+    }
+    .rethink__blueprint img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      display: block;
+      min-height: 420px;
+    }
+    .rethink__blueprint .placeholder {
+      min-height: 420px;
+      border-radius: 0;
+      background: #f3f3f3;
+      color: #9a9a9a;
+      font-size: 15px;
+    }
+
+    .ideation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(16px, 2vw, 28px);
+    }
+    .ideation-placeholder {
+      width: 100%;
+      min-height: clamp(320px, 42vw, 560px);
+      border-radius: 20px;
+      background: #f2f2f2;
+      border: 1px dashed #d0d0d0;
+      display: grid;
+      place-items: center;
+      color: #9a9a9a;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+    .ideation-hero-media {
+      margin: 0;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #f7f7f7;
+    }
+    .ideation-hero-media img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Feature request quote — align with rethink intro / eyebrow */
+    .feature-request-quote {
+      margin: 0;
+      width: 100%;
+      padding: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .feature-request-quote__label {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+    }
+    .feature-request-quote__text {
+      position: relative;
+      margin: 0;
+      width: 100%;
+      max-width: none;
+      padding-top: clamp(60px, 9vw, 100px);
+      padding-bottom: clamp(60px, 9vw, 100px);
+      padding-left: 0.35em;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #222;
+      quotes: none;
+      text-wrap: wrap;
+    }
+    .feature-request-quote__attr {
+      display: block;
+      margin-top: 0.15em;
+      font-size: 22px;
+      font-weight: 500;
+      font-style: normal;
+      letter-spacing: -0.02em;
+      color: #666;
+    }
+    .feature-request-quote__mark {
+      position: absolute;
+      z-index: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: clamp(120px, 18vw, 200px);
+      line-height: 0.8;
+      color: rgba(0, 0, 0, 0.08);
+      pointer-events: none;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
+    }
+    .feature-request-quote__mark--open {
+      top: 0;
+      left: -0.08em;
+    }
+    .feature-request-quote__mark--close {
+      right: -0.2em;
+      bottom: 0;
+    }
+    .ideation-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+    .ideation-card__media {
+      margin: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f7f7f7;
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+      border: none;
+      display: grid;
+      place-items: center;
+    }
+    .ideation-card__media .placeholder {
+      min-height: 0;
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+      background: #f7f7f7;
+      color: #9a9a9a;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .ideation-card__media img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: contain;
+         object-fit: contain;
+      -o-object-position: center;
+         object-position: center;
+      display: block;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .ideation-card__text {
+      padding: 22px 12px 8px;
+      text-align: center;
+    }
+    .ideation-card h3 {
+      margin: 0 0 8px;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: clamp(17px, 1.5vw, 20px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: #2a2a2a;
+      text-align: center;
+    }
+    .ideation-card p {
+      margin: 0 auto;
+      max-width: 28ch;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #777;
+      text-align: center;
+    }
+
+    /* Before / After */
+    .compare-head {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(20px, 3vw, 36px);
+      margin-bottom: clamp(28px, 4vw, 48px);
+    }
+    .compare-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .compare-card__media {
+      background: #fff;
+      aspect-ratio: 16 / 11;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .compare-card__media img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .compare-card__body {
+      padding: 22px 22px 20px;
+      border-bottom: 4px solid transparent;
+    }
+    .compare-card--before .compare-card__body { border-bottom-color: var(--before); }
+    .compare-card--after .compare-card__body { border-bottom-color: var(--after); }
+    .compare-card__label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    .compare-card--before .compare-card__label { color: var(--before); }
+    .compare-card--after .compare-card__label { color: var(--after); }
+    .compare-card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .compare-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    /* Reflection */
+    .reflection {
+      background: #000;
+      color: #fff;
+      text-align: center;
+      margin-block: var(--section-y);
+      padding: var(--section-y) var(--pad);
+    }
+    .reflection__inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .reflection__eyebrow {
+      margin: 0 auto 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #c4b5a5;
+    }
+    .reflection__title {
+      margin: 0 auto 28px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #fff;
+      text-wrap: balance;
+    }
+    .reflection__body {
+      margin: 0 auto;
+      max-width: none;
+      width: 100%;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.82);
+      text-wrap: pretty;
+    }
+
+
+    /* Explore more work — between Reflection and footer arch */
+    .other-work {
+      background: #fff;
+      padding: var(--section-y) var(--pad);
+      padding-bottom: calc(var(--section-y) + 24px);
+    }
+    .other-work__inner {
+      max-width: var(--content);
+      margin: 0 auto;
+    }
+    .other-work__title {
+      margin: 0 0 clamp(36px, 4vw, 52px);
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .other-work__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(28px, 3.5vw, 48px) clamp(24px, 3vw, 40px);
+    }
+    .other-work__link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .other-work__media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #e8e8e8;
+    }
+    .other-work__media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .other-work__link:hover .other-work__media img {
+      transform: scale(1.03);
+    }
+    .other-work__name {
+      margin: 16px 0 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(18px, 1.8vw, 22px);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .other-work__date {
+      margin: 6px 0 0;
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    @media (max-width: 720px) {
+      .other-work__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Footer (matches home) — arch: sides low, center high */
+    footer {
+      --footer-bg: #FBF9F7;
+      --footer-arch: clamp(140px, 21vh, 260px);
+      position: relative;
+      background: var(--footer-bg);
+      color: #222;
+      margin-top: calc(var(--footer-arch) + 32px);
+      padding-top: 1px;
+      overflow: visible;
+    }
+    /* Exact inverse of hero Q0.5,0.58 (same curvature, flipped) */
+    footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: var(--footer-arch);
+      background: var(--footer-bg);
+      clip-path: url(#footer-arch-clip);
+      pointer-events: none;
+      z-index: 0;
+    }
+    footer > * {
+      position: relative;
+      z-index: 1;
+    }
+    .footer-clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .footer-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      transform: translateY(calc(var(--footer-arch, 0px) * -0.35));
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: 22px;
+      padding-right: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 72px;
+    }
+    .footer-tagline {
+      max-width: 1120px; /* match case-study --content / .body measure */
+      width: 100%;
+      text-align: center;
+    }
+    .footer-tagline__title,
+    .footer-tagline__sub {
+      margin: 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+    .footer-tagline__sub {
+      margin-top: 14px;
+      color: #8a8a8a;
+    }
+    /* Match case-study .body (Problem section) */
+    .footer-tagline__notes {
+      margin: 36px 0 0;
+      max-width: none;
+      width: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: 0;
+      color: #444;
+      text-align: left;
+    }
+    .footer-tagline__notes p {
+      margin: 0;
+    }
+    .footer-tagline__notes p + p {
+      margin-top: 1em;
+    }
+    .footer-row {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: clamp(24px, 4vw, 56px);
+      padding-bottom: 132px;
+      text-align: left;
+    }
+    .footer-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* Sit a bit below the square — not bottom-aligned */
+      transform: translateY(100px);
+    }
+    .footer-brand__name {
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #222;
+      line-height: 1.2;
+    }
+    .footer-brand__copy {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #999;
+    }
+    .footer-photos {
+      --fp-w: min(360px, 34vw);
+      --fp-gap: clamp(28px, 3.2vw, 44px);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: var(--fp-gap);
+    }
+    .footer-polaroid {
+      flex: 0 0 auto;
+      width: var(--fp-w);
+      background: #fff;
+      padding: 10px;
+      position: relative;
+      box-shadow:
+        0 10px 28px rgba(40, 30, 20, 0.10),
+        0 2px 6px rgba(40, 30, 20, 0.06);
+      transition:
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        margin 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, margin;
+    }
+    /* Stacked: sides tuck behind the center card */
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(-1.6deg) translateX(10px);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(1deg) translateX(-10px);
+    }
+    /* Spread: fan out to left / center / right */
+    .footer-photos.is-spread .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: 0;
+      transform: rotate(-2.2deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: 0;
+      transform: rotate(-0.8deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-polaroid {
+        transition: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1),
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        margin-left: 0;
+        margin-right: 0;
+        transform: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+        transform: rotate(-2.2deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+        transform: rotate(1.4deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        transform: rotate(-0.8deg);
+      }
+    }
+    .footer-polaroid__photo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+    .footer-polaroid__photo img,
+    .footer-polaroid__photo video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    /* Dog + kitten: shift framing right to keep more of the dog's head */
+    .footer-polaroid:nth-child(1) .footer-polaroid__photo img {
+      -o-object-position: 72% center;
+         object-position: 72% center;
+    }
+    .footer-links {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: flex-start;
+      justify-content: flex-end;
+      transform: translateY(100px);
+    }
+    .footer-link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .footer-link-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .footer-link {
+      text-decoration: none;
+      font-size: 14px;
+      color: #717171;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: #222; }
+    /* Align footer edges with top nav */
+    @media (min-width: 1100px) {
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+
+
+    @media (max-width: 900px) {
+      .stats,
+      .split,
+      .ps-grid,
+      .insight,
+      .rethink__row,
+      .rethink__split,
+      .ideation-grid,
+      .compare-row {
+        grid-template-columns: 1fr;
+      }
+      .ideation-card--tall {
+        grid-row: auto;
+      }
+      .ideation-card--tall .ideation-card__media {
+        min-height: 220px;
+      }
+      .nav { justify-content: center; padding-top: 56px; }
+      .nav-home { top: 18px; transform: none; }
+      .footer-row { flex-direction: column; align-items: center; gap: 40px; }
+      .footer-brand { align-items: center; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-photos { --fp-w: min(30vw, 160px); --fp-gap: 8px; }
+      .footer-polaroid { padding: 8px; }
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="./assets/hero-title-mount-fEnsugsh.js"></script>
+  <script type="module" crossorigin src="./assets/solution-mount-ejGWnosU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/solution-mount-CjHU7MCY.css">
+  <link rel="stylesheet" crossorigin href="./assets/site-footer-DxjJi4lj.css">
+</head>
+<body>
+
+  <!-- Entire layout (nav, curved hero mask defs, hero, content) lives inside this root -->
+  <main class="page-reveal" data-page-reveal>
+
+  <nav class="nav" aria-label="Primary">
+    <a class="nav-home" href="index.html">← Cynthia Cheng</a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html#work">Work</a>
+      <a class="nav-link" href="ai-playground.html">AI Playground</a>
+      <a class="nav-link" href="about.html">About</a>
+      <a class="nav-link" href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a>
+      <a class="nav-link" href="mailto:cynthiaproductdesigner@gmail.com">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Clip path defs stay inside the reveal root so the curve expands with the page -->
+  <svg class="hero-clip-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="hero-convex-clip" clipPathUnits="objectBoundingBox">
+        <!-- Stronger convex curve (was 0.73 mid; steeper = more bulge) -->
+        <path d="M0,0 H1 V1 Q0.5,0.58 0,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <header class="case-hero">
+    <img
+      class="case-hero__media"
+      src="./assets/permissions-hero-CZXbDRNi.png?v=2"
+      alt=""
+      aria-hidden="true"
+      fetchpriority="high"
+      decoding="async"
+    >
+    <h1 class="case-hero__title">Permissions</h1>
+  </header>
+
+  <section class="section overview">
+    <div class="section__inner">
+      <div class="overview__badge-wrap">
+        <div class="launch-badge">
+          <span class="launch-badge__dot" aria-hidden="true"></span>
+          Launched: March 2025
+        </div>
+      </div>
+      <h2 class="display">Flexible, adaptable permissions for any user and team</h2>
+      <p class="lede">
+        At Gripp, we work with clients of all sizes, from small teams of around 10 people to large organizations with over 500 employees. With so many staff members joining and leaving, some clients began requesting more control over what their employees can see. This led to the need for a permissions feature with different access levels to help them manage visibility across their teams.
+      </p>
+      <div class="stats">
+        <div>
+          <p class="stat__label">Team</p>
+          <ul class="stat__team">
+            <li>Sole Product Designer (Me)</li>
+            <li>1 Product Manager</li>
+            <li>2 Engineers</li>
+          </ul>
+        </div>
+        <div>
+          <p class="stat__label">Client Demand</p>
+          <p class="stat__value stat__value--xl">35%</p>
+          <p class="stat__meta">of clients requested access control to manage seasonal workers.</p>
+        </div>
+        <div>
+          <p class="stat__label">Client Satisfaction</p>
+          <p class="stat__value stat__value--xl">85%</p>
+          <p class="stat__meta">satisfaction among adopting clients after launch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="section__inner split">
+      <div>
+        <p class="eyebrow">Context</p>
+        <h2 class="display">How did the previous invitation process work?</h2>
+        <p class="body">
+          In the old design, tapping the orange '+' button instantly revealed an invitation code. Anyone could scan and join, gaining full access to all activities, groups, and assets. It felt like a new employee seeing everything from finance to HR at once. For the company, this exposed too much, and for employees, it wasn’t clear where to focus.
+        </p>
+      </div>
+
+      <div class="device-stage" id="device-stage" aria-label="Gripp invite QR screen">
+        <img
+          class="device-stage__phone"
+          src="./assets/gripp-invite-qr-DFskVYEK.png?v=4"
+          alt="Gripp invite screen showing QR code to invite others"
+        >
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight section--ps">
+    <div class="section__inner">
+      <div class="ps-card ps-card--problem-full">
+        <p class="eyebrow">Problem</p>
+        <h2 class="display">Temporary workers and visitors often join farms for short-term tasks or specific equipment, but they can still see everything happening on the farm. Farmers need a way to limit access so people only see what's relevant.</h2>
+        <div class="quote-grid" aria-label="User personas">
+          <article class="quote-card">
+            <img class="quote-card__media" src="./assets/rob-manager-BSkolg7e.jpg" alt="Rob, Manager">
+            <div class="quote-card__shade" aria-hidden="true"></div>
+            <div class="quote-card__content">
+              <p class="quote-card__quote">
+                I manage teams and employees, but right now everyone has full access, and it’s hard to control.
+              </p>
+              <p class="quote-card__byline">— Rob, Manager</p>
+            </div>
+          </article>
+          <article class="quote-card">
+            <img class="quote-card__media" src="./assets/mariah-fulltime-staff-BtjagAhf.png?v=3" alt="Mariah, Full-time Staff" decoding="async">
+            <div class="quote-card__shade" aria-hidden="true"></div>
+            <div class="quote-card__content">
+              <p class="quote-card__quote">
+                I’ve worked here for several years and sometimes onboard new members for packing line work.
+              </p>
+              <p class="quote-card__byline">— Mariah, Full-time Staff</p>
+            </div>
+          </article>
+          <article class="quote-card">
+            <img class="quote-card__media" src="./assets/devin-temporary-worker-rIReY1h1.png?v=1" alt="Devin, Temporary Worker" decoding="async">
+            <div class="quote-card__shade" aria-hidden="true"></div>
+            <div class="quote-card__content">
+              <p class="quote-card__quote">
+                I’m a temporary worker who works across multiple farms and sometimes switches between them.
+              </p>
+              <p class="quote-card__byline">— Devin, Temporary Worker</p>
+            </div>
+          </article>
+          <article class="quote-card">
+            <img class="quote-card__media" src="./assets/danny-farmer-BRnOoPFw.png?v=4" alt="Danny, Farmer" decoding="async">
+            <div class="quote-card__shade" aria-hidden="true"></div>
+            <div class="quote-card__content">
+              <p class="quote-card__quote">
+                It’s a family-run farm, and I want a simple way to share access with others. Privacy isn’t a concern for me.
+              </p>
+              <p class="quote-card__byline">— Danny, Farmer</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="solution-scroll-root" data-variant="permissions" aria-label="Solution horizontal scroll section"></div>
+
+  <aside class="banner banner--challenge">
+    <div class="banner__inner">
+      <p class="banner__eyebrow">Challenge</p>
+      <p class="banner__title">How do I design a permission system that accommodates different client requests and user personas while ensuring seamless updates across pages?</p>
+    </div>
+  </aside>
+
+  <!-- Feature Request -->
+  <section class="section section--tight">
+    <div class="section__inner">
+      <figure class="feature-request-quote">
+        <p class="feature-request-quote__label">Feature Request</p>
+        <blockquote class="feature-request-quote__text">
+          <span class="feature-request-quote__mark feature-request-quote__mark--open" aria-hidden="true">“</span>
+          Hey Gripp, can we have permission to invite people to specific groups only, instead of the whole workplace?
+          <span class="feature-request-quote__attr">– requested by 4 clients in January.</span>
+          <span class="feature-request-quote__mark feature-request-quote__mark--close" aria-hidden="true">”</span>
+        </blockquote>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Interview — Service Blueprint -->
+  <section class="section section--tight">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">Interview - Service Blueprint</p>
+        <h2 class="display">After interviews, I validated these role insights by reviewing companies of different sizes and found both shared patterns and variations.</h2>
+        <p class="body">
+          After reviewing our client personas, I realized that not all farms have the same staffing structure. Some don’t have managers, long-term employees, or seasonal workers/mechanics. Smaller farms may just be run by the owner together with friends or family.
+        </p>
+      </div>
+
+      <div class="persona-table" aria-label="Persona insights by company size">
+        <div class="persona-table__legend">
+          <span class="persona-table__legend-label">Company Size:</span>
+          <span class="persona-table__swatch"><span class="persona-table__dot persona-table__dot--10" aria-hidden="true"></span>~ 10</span>
+          <span class="persona-table__swatch"><span class="persona-table__dot persona-table__dot--200" aria-hidden="true"></span>~ 200</span>
+          <span class="persona-table__swatch"><span class="persona-table__dot persona-table__dot--1000" aria-hidden="true"></span>~ 1000</span>
+        </div>
+
+        <ul class="persona-table__list">
+          <li class="persona-table__row">
+            <div class="persona-table__identity">
+              <img class="persona-table__avatar" src="./assets/rob-manager-BSkolg7e.jpg" alt="" decoding="async">
+              <div>
+                <p class="persona-table__name">Rob</p>
+                <p class="persona-table__role">Manager</p>
+              </div>
+            </div>
+            <div class="persona-table__sizes" aria-label="Company sizes about 200 and 1000">
+              <span class="persona-table__dot persona-table__dot--200"></span>
+              <span class="persona-table__dot persona-table__dot--1000"></span>
+            </div>
+            <blockquote class="persona-table__quote">
+              <span class="persona-table__quote-mark persona-table__quote-mark--open" aria-hidden="true">“</span>
+              I <strong>manage teams and employees</strong>, but right now everyone has full access, and it’s hard to control.
+              <span class="persona-table__quote-mark persona-table__quote-mark--close" aria-hidden="true">”</span>
+            </blockquote>
+            <div class="persona-table__meta-block persona-table__goals">
+                <p class="persona-table__meta-label">Goals:</p>
+                <p class="persona-table__meta-text">Be able to see who has which access and manage everyone’s permissions based on their role.</p>
+              </div>
+            <div class="persona-table__meta-block persona-table__frustrations">
+                <p class="persona-table__meta-label">Frustrations:</p>
+                <p class="persona-table__meta-text">Too much access makes it easier to make mistakes and creates confusion around responsibilities.</p>
+              </div>
+          </li>
+
+          <li class="persona-table__row">
+            <div class="persona-table__identity">
+              <img class="persona-table__avatar" src="./assets/mariah-fulltime-staff-BtjagAhf.png?v=3" alt="" decoding="async">
+              <div>
+                <p class="persona-table__name">Mariah</p>
+                <p class="persona-table__role">Full-time Staff</p>
+              </div>
+            </div>
+            <div class="persona-table__sizes" aria-label="Company sizes about 200 and 1000">
+              <span class="persona-table__dot persona-table__dot--200"></span>
+              <span class="persona-table__dot persona-table__dot--1000"></span>
+            </div>
+            <blockquote class="persona-table__quote">
+              <span class="persona-table__quote-mark persona-table__quote-mark--open" aria-hidden="true">“</span>
+              I’ve worked here for several years and sometimes <strong>onboard new members</strong> for packing line work.
+              <span class="persona-table__quote-mark persona-table__quote-mark--close" aria-hidden="true">”</span>
+            </blockquote>
+            <div class="persona-table__meta-block persona-table__goals">
+                <p class="persona-table__meta-label">Goals:</p>
+                <p class="persona-table__meta-text">Quickly and clearly onboard new packing line staff so they can start working confidently and correctly.</p>
+              </div>
+            <div class="persona-table__meta-block persona-table__frustrations">
+                <p class="persona-table__meta-label">Frustrations:</p>
+                <p class="persona-table__meta-text">Full access makes it harder to guide new staff’s focus during onboarding.</p>
+              </div>
+          </li>
+
+          <li class="persona-table__row">
+            <div class="persona-table__identity">
+              <img class="persona-table__avatar" src="./assets/devin-temporary-worker-rIReY1h1.png?v=1" alt="" decoding="async">
+              <div>
+                <p class="persona-table__name">Devin</p>
+                <p class="persona-table__role">Temporary Worker</p>
+              </div>
+            </div>
+            <div class="persona-table__sizes" aria-label="Company size about 1000">
+              <span class="persona-table__dot persona-table__dot--1000"></span>
+            </div>
+            <blockquote class="persona-table__quote">
+              <span class="persona-table__quote-mark persona-table__quote-mark--open" aria-hidden="true">“</span>
+              I’m a temporary worker who <strong>works across multiple farms</strong> and sometimes switches between them.
+              <span class="persona-table__quote-mark persona-table__quote-mark--close" aria-hidden="true">”</span>
+            </blockquote>
+            <div class="persona-table__meta-block persona-table__goals">
+                <p class="persona-table__meta-label">Goals:</p>
+                <p class="persona-table__meta-text">Move efficiently between farms without losing access to tasks or any information, so I can work with confidence.</p>
+              </div>
+            <div class="persona-table__meta-block persona-table__frustrations">
+                <p class="persona-table__meta-label">Frustrations:</p>
+                <p class="persona-table__meta-text">When switching between farms, I sometimes forget what tasks I’ve completed or need to do next.</p>
+              </div>
+          </li>
+
+          <li class="persona-table__row">
+            <div class="persona-table__identity">
+              <img class="persona-table__avatar" src="./assets/danny-farmer-BRnOoPFw.png?v=4" alt="" decoding="async">
+              <div>
+                <p class="persona-table__name">Danny</p>
+                <p class="persona-table__role">Farmer</p>
+              </div>
+            </div>
+            <div class="persona-table__sizes" aria-label="Company size about 10">
+              <span class="persona-table__dot persona-table__dot--10"></span>
+            </div>
+            <blockquote class="persona-table__quote">
+              <span class="persona-table__quote-mark persona-table__quote-mark--open" aria-hidden="true">“</span>
+              It’s a family-run farm, and I want a <strong>simple way to share access</strong> with others. Privacy isn’t a concern for me.
+              <span class="persona-table__quote-mark persona-table__quote-mark--close" aria-hidden="true">”</span>
+            </blockquote>
+            <div class="persona-table__meta-block persona-table__goals">
+                <p class="persona-table__meta-label">Goals:</p>
+                <p class="persona-table__meta-text">When friends or family members want to help out, I want to quickly share access with them.</p>
+              </div>
+            <div class="persona-table__meta-block persona-table__frustrations">
+                <p class="persona-table__meta-label">Frustrations:</p>
+                <p class="persona-table__meta-text">Right now, everything is working perfectly for me, and I’m not feeling any frustration.</p>
+              </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3/3 Ideation -->
+  <section class="section section--tight">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">Ideation</p>
+        <h2 class="display">After understanding the needs of different companies and personas, I reviewed our current flows and the key pages affected.</h2>
+        <p class="body">
+          With a clear understanding of the personas and business goals, I explored solution concepts aligned to user needs. After defining the ideal solution, I created task flows for each persona and evaluated the key pages affected across the product.
+        </p>
+      </div>
+
+      <figure class="ideation-hero-media">
+        <img
+          src="./assets/permissions-persona-flows-D_zhcgf4.jpg"
+          alt="Task flows for Manager Admin, Long-term staff General, and Temporary workers Restricted personas"
+        >
+      </figure>
+    </div>
+  </section>
+
+  <aside class="banner banner--challenge">
+    <div class="banner__inner">
+      <p class="banner__eyebrow">Main Iterations</p>
+      <p class="banner__title">How Did I Get from the Initial Concept to the Final Product?<br>Balancing User Needs, Technical Feasibility, Business Goals, and Project Scope</p>
+    </div>
+  </aside>
+
+  <section class="section" style="background: #fff;">
+    <div class="section__inner">
+      <div class="compare-row">
+        <article class="compare-card compare-card--before">
+          <div class="compare-card__media">
+            <img src="./assets/allan-brothers-activity-BpSDYUu5.png?v=1" alt="Before — Allan Brothers mobile activity feed">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">Before</p>
+            <h4>Design Choice - Notification</h4>
+            <p>To help temporary workers stay on top of tasks across different workplaces, I designed notifications that alert them whenever they are mentioned in any workplace.</p>
+          </div>
+        </article>
+        <article class="compare-card compare-card--after">
+          <div class="compare-card__media">
+            <img src="./assets/all-activity-mobile-Co7xJQ_n.png?v=2" alt="After — All Activity mobile feed">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">After</p>
+            <h4>Teams Feedback – All Activity</h4>
+            <p>After discussing with the team, we decided to include an All Activity option, which not only lets users stay on top of multiple workplaces but also view their past completed tasks.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="compare-row">
+        <article class="compare-card compare-card--before">
+          <div class="compare-card__media">
+            <img src="./assets/before-mobile-clipped-BkRL3bjL.png?v=2" alt="Before — account type roles Manager, Worker, Viewer">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">Before</p>
+            <h4>Design Choice - Permission Flexibility</h4>
+            <p>Originally, I designed the system so that each company has the flexibility to set different access levels, as each company has different needs.</p>
+          </div>
+        </article>
+        <article class="compare-card compare-card--after">
+          <div class="compare-card__media">
+            <img src="./assets/after-mobile-field-focus-DT8GCIE-.png?v=2" alt="After — account type roles Admin, General, Restricted">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">After</p>
+            <h4>Feasibility Test - Fixed Permissions</h4>
+            <p>However, considering the timeline and scope, we decided that for the MVP, permissions will be fixed for all companies, since giving flexibility to set them would require extra time.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="compare-row">
+        <article class="compare-card compare-card--before">
+          <div class="compare-card__media">
+            <img src="./assets/before-mobile-detail-cLBN4kGW.png?v=2" alt="Before — warranty registration detail screen buried context">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">Before</p>
+            <h4>Design Choice - User-Friendly Names</h4>
+            <p>When designing the names for different permission account types, I chose roles like Manager, Worker, and Viewer, as these are more user-friendly for clients.</p>
+          </div>
+        </article>
+        <article class="compare-card compare-card--after">
+          <div class="compare-card__media">
+            <img src="./assets/after-mobile-detail-card-C_6FJL5p.png?v=2" alt="After — photo, status, and action in one card">
+          </div>
+          <div class="compare-card__body">
+            <p class="compare-card__label">After</p>
+            <h4>Design Choice - Content Design</h4>
+            <p>When reviewing roles with different clients, I noticed that not every client uses the same names like Manager, Worker, and Viewer. Even when they do, the permissions for these roles often differ.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="reflection" id="reflection">
+    <div class="reflection__inner">
+      <p class="reflection__eyebrow">Reflection</p>
+      <h2 class="reflection__title">Business v.s. UX Tradeoff</h2>
+      <p class="reflection__body">
+        I often found myself acting as the intermediary between clients and engineers. In the first few projects, I struggled to convince clients of the value of UX due to a limited number of interviewees caused by budget constraints. However, after gaining some experience, I realized that engaging stakeholders at every stage of the project makes a significant difference. They become more receptive and are able to put themselves in the users' shoes, providing valuable feedback.
+      </p>
+    </div>
+  </section>
+
+  <section class="other-work" id="other-work" aria-label="Explore more work">
+    <div class="other-work__inner">
+      <h2 class="other-work__title">Explore more work</h2>
+      <div class="other-work__grid">
+        <a class="other-work__link" href="crop-circle-system.html">
+          <div class="other-work__media">
+            <img
+              src="./assets/pathway-onboarding-Cg7Hrflj.png"
+              alt="Rebuilding the Design System for UI Consistency"
+              loading="lazy"
+            >
+          </div>
+          <h3 class="other-work__name">Rebuilding the Design System for UI Consistency</h3>
+          <p class="other-work__date">Gripp</p>
+        </a>
+        <a class="other-work__link" href="wiwant.html">
+          <div class="other-work__media">
+            <img
+              src="./assets/wiwant-card-VBUmYzkD.jpg?v=2"
+              alt="Meeting Wine Lovers' Needs for Business Success"
+              loading="lazy"
+            >
+          </div>
+          <h3 class="other-work__name">Meeting Wine Lovers' Needs for Business Success</h3>
+          <p class="other-work__date">Syscode</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <svg class="footer-clip-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <clipPath id="footer-arch-clip" clipPathUnits="objectBoundingBox">
+        <!-- Inverse of hero Q0.5,0.58 — same curve shape, flipped to top -->
+        <path d="M0,1 Q0.5,-1 1,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <footer id="contact">
+    <div class="footer-main">
+      <div class="footer-tagline">
+        <h2 class="footer-tagline__title">You made it to the bottom!</h2>
+        <p class="footer-tagline__sub">Each page features a pet I’ve cared for.</p>
+        <div class="footer-tagline__notes">
+          <p>Say hello to Ruru! He was adopted by one of my friends and is the sweetest little social butterfly.</p>
+          <p>Ruru lovesss people. Every morning, he makes the rounds to say hello to everyone in his building, from his favorite concierge to the cleaning staff. While he's not very food motivated, he absolutely loves getting attention from humans.</p>
+          <p>He also lives with 11 cats and another dog, which has definitely rubbed off on him. Sometimes I swear he thinks he's a cat.</p>
+          <p>Ruru is obsessed with toys. He has a bed full of them, and every night before bed, he carefully picks one to cuddle with before falling asleep.</p>
+          <p>He's affectionate, gentle, and impossibly cute.</p>
+        </div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-brand">
+          <div class="footer-brand__name">Cynthia Cheng</div>
+          <p class="footer-brand__copy">© 2026 Cynthia Cheng. Built with Claude and Cursor.</p>
+        </div>
+        <div class="footer-photos">
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/permission-pet-1-CPWZ4aCu.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <video
+                src="./assets/permission-pet-2-DmI53d-L.mp4"
+                muted
+                autoplay
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Pet video"
+              ></video>
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/permission-pet-3-CZngy521.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <div class="footer-link-label">Explore</div>
+            <a href="index.html#work" class="footer-link">Work</a>
+            <a href="ai-playground.html" class="footer-link">AI Playground</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-link-group">
+            <div class="footer-link-label">Connect</div>
+            <a href="https://www.linkedin.com/in/cynthia-cheng-aa296814b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Email</a>
+            <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="footer-link" target="_blank" rel="noopener noreferrer">Resume</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  </main>
+
+
+  <script>
+    (function () {
+      const stage = document.getElementById('device-stage');
+      if (!stage) return;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        stage.classList.add('is-inview', 'is-settled');
+        return;
+      }
+
+      let played = false;
+
+      const lockSettled = () => {
+        stage.classList.add('is-settled');
+      };
+
+      const play = () => {
+        if (played) return;
+        played = true;
+        stage.classList.add('is-inview');
+        // Lock after the longest card delay (0.3s) + duration (0.9s)
+        window.setTimeout(lockSettled, 1300);
+      };
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              play();
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.25, rootMargin: '0px 0px -5% 0px' }
+      );
+
+      observer.observe(stage);
+    })();
+  </script>
+
+  <script src="js/skip-home-intro.js"></script>
+  <script src="js/footer-photos-spread.js"></script>
+</body>
+</html>

@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crop Circle System — Cynthia Cheng</title>
+  <script>
+    /* Apply handoff class before first paint to skip a second entrance */
+    (function () {
+      try {
+        var raw =
+          sessionStorage.getItem('portfolio-page-transition') ||
+          sessionStorage.getItem('portfolio-circular-expand');
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (data && (data.mode === 'overlay-complete' || data.mode === 'skip-motion')) {
+          document.documentElement.classList.add('expand-handoff');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preload" as="image" href="./assets/pathway-onboarding-Cg7Hrflj.png" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: "Exposure";
+      src: url("./assets/Exposure-Trial-10-Cvo-Gnpf.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Nav Sans";
+      src: url("./assets/NavSans-BlUVklqW.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Category Sans";
+      src: url("./assets/CategorySans-B40WzpMT.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Medium";
+      src: url("./assets/Inter-Medium-Cerq10X2.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Bold";
+      src: url("./assets/Inter-Bold-Dk21gjM7.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Regular";
+      src: url("./assets/Inter-Regular-B6Jjae07.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      /* Dark underlay while page entrance is pending */
+      background: #1a1a1a;
+      /* Reserve scrollbar space — prevents layout jump when overflow toggles */
+      scrollbar-gutter: stable;
+    }
+    body {
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body.is-page-ready {
+      background: #fff;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    :root {
+      --pad: clamp(24px, 5vw, 80px);
+      --content: 1120px;
+      --section-y: clamp(72px, 9vw, 112px);
+      --ink: #222;
+      --muted: #717171;
+      --line: #e8e8e8;
+      --soft: #f2f2f2;
+      --before: #d64545;
+      --after: #2f9e6b;
+    }
+
+    /* ── Nav (match home: 22px base, 240px inset ≥1100px) ── */
+    .nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      margin: 0;
+      padding: 26px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+      box-sizing: border-box;
+    }
+    @media (min-width: 1100px) {
+      .nav {
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+    .nav-home {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.18s;
+      text-decoration: none;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.14); }
+
+    /* ── Page fade + scale entrance (opacity / transform only — no circle clip-path) ── */
+    .page-reveal {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      opacity: 0;
+      transform: scale(1.03);
+      transform-origin: center center;
+      background: #1a1a1a;
+      will-change: opacity, transform;
+    }
+    .page-reveal.is-hydrated,
+    .page-reveal.is-ready {
+      background: #fff;
+    }
+    /* Arriving from home card overlay — show final layout immediately */
+    html.expand-handoff,
+    html.expand-handoff body {
+      background: #fff;
+    }
+    html.expand-handoff .page-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      background: #fff;
+      will-change: auto;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .page-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        background: #fff;
+        will-change: auto;
+      }
+    }
+
+    /* ── Case hero ── */
+    .case-hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #1a1a1a;
+      /* Decorative curved bottom only (not a transition wipe) */
+      clip-path: url(#hero-convex-clip);
+    }
+    .case-hero__media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center;
+         object-position: center;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .case-hero__scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.45) 100%);
+    }
+    .case-hero__title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      margin: 0;
+      padding: 0 24px;
+      width: -moz-max-content;
+      width: max-content;
+      max-width: calc(100% - 48px);
+      transform: translate(-50%, -50%);
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: clamp(64px, 10vw, 136px);
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+      color: #fff;
+      text-align: center;
+      text-wrap: balance;
+    }
+    .case-hero__title .hero-title-reveal__char {
+      display: inline-block;
+      white-space: pre;
+    }
+    .hero-clip-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    /* ── Shared sections ── */
+    .section {
+      padding: var(--section-y) var(--pad);
+    }
+    .section--tight {
+      padding-top: var(--section-y);
+      padding-bottom: var(--section-y);
+    }
+    .section__inner {
+      max-width: var(--content);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .display {
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0 0 20px;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+    .split .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #56483b;
+    }
+    .split .display {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+    }
+    .split .body {
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-weight: 400;
+    }
+    .lede {
+      font-size: clamp(16px, 1.4vw, 18px);
+      line-height: 1.65;
+      color: #444;
+      max-width: 62ch;
+      margin: 0;
+    }
+    .body {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #444;
+      margin: 0;
+    }
+    .body + .body { margin-top: 16px; }
+
+    /* Overview + stats — matches reference: badge, left copy, big metrics */
+    .overview {
+      text-align: left;
+      padding-top: 0;
+      margin-top: -clamp(160px, 22vw, 280px);
+      position: relative;
+      z-index: 2;
+    }
+    .launch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto 40px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      color: #333;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .overview__badge-wrap {
+      display: flex;
+      justify-content: center;
+    }
+    .launch-badge__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #3fc11d;
+      flex-shrink: 0;
+    }
+    .overview .display {
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(40px, 5.2vw, 60px);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin: 0 0 22px;
+      width: 100%;
+      max-width: none;
+      text-wrap: balance;
+    }
+    .overview .lede {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 1.6vw, 22px);
+      font-weight: 500;
+      line-height: 1.65;
+      color: #222;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(24px, 4vw, 48px);
+      margin-top: clamp(48px, 6vw, 72px);
+      padding-top: 0;
+      border-top: none;
+      align-items: start;
+    }
+    .stat__label {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin: 0 0 12px;
+    }
+    .stat__value {
+      font-family: "Inter Bold", Inter, system-ui, sans-serif;
+      font-size: clamp(22px, 2.4vw, 28px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: var(--ink);
+    }
+    .stat__value--xl {
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .stat__value--xl .hero-title-reveal__char {
+      display: inline-block;
+      white-space: pre;
+    }
+    .stat__meta {
+      margin: 10px 0 0;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: #56483b;
+      max-width: none;
+    }
+    .stat__meta--label {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin-top: 28px;
+    }
+    .stat__team {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: #56483b;
+    }
+    .stat__team li + li {
+      margin-top: 2px;
+    }
+    .stat__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .stat__link:hover { opacity: 0.7; }
+
+    /* Split rows */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .split--top { align-items: start; }
+    .split__copy {
+      align-self: center;
+    }
+    .media-frame {
+      background: var(--soft);
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .media-frame img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .media-frame--tall { aspect-ratio: 3 / 4; }
+    .media-frame--wide { aspect-ratio: 16 / 10; }
+
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      background: var(--soft);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Problem — two-column: copy + numbered points */
+    .problem-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: clamp(32px, 5vw, 64px);
+      align-items: start;
+    }
+    .problem-split__copy .display {
+      margin-bottom: 16px;
+    }
+    .problem-split__copy .body {
+      margin: 0;
+      color: #717171;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .problem-points {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .problem-points__item {
+      margin: 0;
+      padding: 18px 20px;
+      background: #f2f2f2;
+      border-radius: 12px;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #3a3a3a;
+    }
+    @media (max-width: 900px) {
+      .problem-split {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+
+    .solution-video {
+      margin-top: 32px;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #111;
+    }
+    .solution-video__player {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: top;
+    }
+
+    /* Problem / Solution — stacked full-width blocks */
+    .ps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(56px, 7vw, 96px);
+    }
+    .ps-card {
+      width: 100%;
+    }
+    .ps-card .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #56483b;
+    }
+    .ps-card .display {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin: 0 0 20px;
+      width: 100%;
+      max-width: none;
+    }
+    .ps-card .body {
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-weight: 400;
+      width: 100%;
+      max-width: none;
+    }
+    #solution .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #56483b;
+    }
+    #solution .display {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin: 0 0 20px;
+      width: 100%;
+      max-width: none;
+      text-wrap: wrap;
+    }
+    #solution .body {
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-weight: 400;
+    }
+    .ps-card__media {
+      margin-top: 24px;
+      width: 100%;
+      min-height: 280px;
+      height: auto;
+      background: var(--soft);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Expanding persona cards under Problem */
+    .quote-grid {
+      margin-top: 28px;
+      display: flex;
+      width: 100%;
+      gap: 16px;
+      height: 500px;
+    }
+    .quote-card {
+      position: relative;
+      flex: 1 1 0;
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #1a1a1a;
+      color: #fff;
+      cursor: default;
+      isolation: isolate;
+      transition: flex 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+    }
+    .quote-grid:hover .quote-card {
+      flex: 0.75 1 0;
+    }
+    .quote-card:hover {
+      flex: 3 1 0 !important;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+    .quote-card__media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center;
+         object-position: center;
+      display: block;
+      transition: transform 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__media {
+      transform: scale(1.04);
+    }
+    .quote-card__shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.4) 42%,
+        transparent 72%
+      );
+      opacity: 0.85;
+      transition: opacity 0.5s ease-in-out;
+      pointer-events: none;
+    }
+    .quote-card:hover .quote-card__shade {
+      opacity: 1;
+    }
+    .quote-card__content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      padding: 22px 18px;
+      transform: translateY(8px);
+      opacity: 0.9;
+      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__content {
+      transform: translateY(0);
+      opacity: 1;
+      padding: 28px 24px;
+    }
+    .quote-card__content::before {
+      content: "“";
+      position: absolute;
+      left: 12px;
+      bottom: 64px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 56px;
+      line-height: 1;
+      color: #fff;
+      opacity: 0.18;
+      pointer-events: none;
+      transition: font-size 0.5s ease-in-out, bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__content::before {
+      font-size: 80px;
+      bottom: 88px;
+      opacity: 0.22;
+    }
+    .quote-card__quote {
+      position: relative;
+      margin: 0;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-wrap: pretty;
+      transition: font-size 0.5s ease-in-out, line-height 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__quote {
+      font-size: 20px;
+      line-height: 1.45;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+      display: block;
+    }
+    .quote-card__byline {
+      position: relative;
+      margin: 10px 0 0;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: font-size 0.5s ease-in-out, margin 0.5s ease-in-out;
+    }
+    .quote-card:hover .quote-card__byline {
+      font-size: 15px;
+      margin-top: 14px;
+      white-space: normal;
+      overflow: visible;
+    }
+
+    @media (max-width: 900px) {
+      .quote-grid {
+        flex-direction: column;
+        height: auto;
+        gap: 16px;
+      }
+      .quote-grid:hover .quote-card,
+      .quote-card,
+      .quote-card:hover {
+        flex: none !important;
+      }
+      .quote-card {
+        height: 380px;
+        min-height: 380px;
+      }
+      .quote-card__content {
+        transform: none;
+        opacity: 1;
+      }
+      .quote-card__shade {
+        opacity: 1;
+      }
+    }
+
+    .section--ps {
+      padding-bottom: var(--section-y);
+      overflow: visible;
+    }
+
+    .section--before-black-band {
+      padding-bottom: 0;
+    }
+
+    /* Black banner */
+    .banner {
+      position: relative;
+      z-index: 2;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin-block: var(--section-y);
+      padding: var(--section-y) var(--pad);
+    }
+    .banner__eyebrow {
+      margin: 0 auto 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .banner p {
+      margin: 0 auto;
+      max-width: 820px;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -0.015em;
+      text-wrap: balance;
+    }
+    .banner--challenge {
+      text-align: center;
+    }
+    .banner--challenge .banner__inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .banner.banner--challenge .banner__eyebrow {
+      margin: 0 auto 16px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #c4b5a5;
+    }
+    .banner.banner--challenge .banner__title {
+      margin: 0 auto;
+      max-width: 820px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #fff;
+      text-wrap: balance;
+    }
+    .banner.banner--challenge.banner--match-content .banner__title {
+      max-width: none;
+      width: 100%;
+      text-wrap: unset;
+    }
+
+    /* Insight blocks */
+    .insight {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .insight__stack {
+      display: grid;
+      gap: 12px;
+    }
+    .insight__stack .media-frame {
+      aspect-ratio: 16 / 10;
+    }
+    .insight ul {
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+    .insight li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: #444;
+    }
+    .insight li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.7em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #222;
+    }
+
+    /* Research / rethink — photo grid + findings */
+    .rethink {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(36px, 5vw, 56px);
+    }
+    .rethink__intro {
+      max-width: 62ch;
+    }
+    .rethink__intro--wide {
+      max-width: none;
+      width: 100%;
+    }
+    .rethink__intro .eyebrow {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #56483b;
+      margin: 0 0 16px;
+    }
+    .rethink__intro .display {
+      width: 100%;
+      max-width: none;
+      margin: 0 0 20px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #222;
+      text-wrap: unset;
+    }
+    .rethink__intro .body {
+      margin: 0;
+      width: 100%;
+      max-width: none;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: #444;
+    }
+    .rethink__row {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: start;
+    }
+    .rethink__row--vcenter {
+      align-items: center;
+    }
+    .rethink__photos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .rethink__photo {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--soft);
+      aspect-ratio: 4 / 3;
+    }
+    .rethink__photo img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      display: block;
+    }
+    .rethink__findings {
+      display: grid;
+      gap: clamp(28px, 3.5vw, 40px);
+      padding-top: 4px;
+    }
+    .rethink__finding h3 {
+      margin: 0 0 10px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: clamp(18px, 1.8vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+    .rethink__finding h3 span {
+      font-weight: 500;
+    }
+    .rethink__finding p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555;
+    }
+    .rethink__blueprint-diagram {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .rethink__blueprint-diagram img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .rethink__finding-title {
+      margin: 0 0 10px;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .heuristic-layout {
+      margin-top: clamp(28px, 4vw, 40px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 1.05fr);
+      gap: clamp(24px, 3.5vw, 40px);
+      align-items: stretch;
+    }
+    .heuristic-screens {
+      margin: 0;
+      height: 0;
+      min-height: 100%;
+      display: flex;
+      align-items: flex-start;
+    }
+    .heuristic-screens img {
+      display: block;
+      height: 106%;
+      width: auto;
+      max-width: 100%;
+      -o-object-fit: contain;
+         object-fit: contain;
+      -o-object-position: left top;
+         object-position: left top;
+    }
+    .heuristic-problems-panel {
+      background: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: clamp(22px, 2.5vw, 28px) clamp(20px, 2.2vw, 26px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      align-self: start;
+      height: -moz-fit-content;
+      height: fit-content;
+    }
+    .heuristic-problems-panel__title {
+      margin: 0;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #e11d2e;
+      letter-spacing: -0.02em;
+    }
+    .heuristic-problems-body {
+      display: flex;
+      align-items: stretch;
+      gap: 14px;
+    }
+    .heuristic-problems-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .heuristic-problems-list li {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 12px;
+      align-items: start;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #2a2a2a;
+    }
+    .heuristic-problems-list__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    .heuristic-problems-list strong {
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      font-weight: 600;
+    }
+    .heuristic-priority {
+      position: static;
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 8px;
+      pointer-events: none;
+      align-self: stretch;
+    }
+    .heuristic-priority__bar {
+      flex: 0 0 10px;
+      width: 10px;
+      align-self: stretch;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #e11d2e 0%, #f3a6ad 100%);
+    }
+    .heuristic-priority__labels {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0;
+    }
+    .heuristic-priority__label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+      font-family: "Inter Medium", Inter, system-ui, sans-serif;
+      flex: 0 0 auto;
+      line-height: 1;
+    }
+    @media (max-width: 900px) {
+      .heuristic-layout {
+        grid-template-columns: 1fr;
+      }
+      .heuristic-screens {
+        height: auto;
+        min-height: 0;
+      }
+      .heuristic-screens img {
+        width: 100%;
+        height: auto;
+      }
+      .heuristic-priority {
+        display: none;
+      }
+    }
+
+    .rethink__split {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .rethink__split-copy .eyebrow {
+      margin-bottom: 12px;
+    }
+    .rethink__split-copy .display {
+      width: 100%;
+      max-width: none;
+      margin: 0 0 18px;
+      font-size: clamp(26px, 3vw, 36px);
+      line-height: 1.2;
+    }
+    .rethink__split-copy .body {
+      margin: 0;
+      width: 100%;
+      max-width: none;
+    }
+    .rethink__blueprint {
+      margin: 0;
+      border-radius: 0;
+      overflow: visible;
+      background: transparent;
+      border: none;
+    }
+    .rethink__blueprint img,
+    .rethink__blueprint video {
+      width: 100%;
+      height: auto;
+      -o-object-fit: contain;
+         object-fit: contain;
+      display: block;
+    }
+    .rethink__blueprint video {
+      border-radius: 12px;
+    }
+    .rethink__blueprint .placeholder {
+      min-height: 420px;
+      border-radius: 0;
+      background: #f3f3f3;
+    }
+
+    .design-direction-compare {
+      width: 100%;
+      max-width: 100%;
+      margin-top: clamp(8px, 1.5vw, 16px);
+    }
+    .design-direction-compare img {
+      width: 100%;
+      height: auto;
+      image-rendering: auto;
+    }
+
+    .dark-mode-compare {
+      width: 100%;
+      max-width: 100%;
+      margin-inline: auto;
+    }
+    .dark-mode-compare img {
+      width: 100%;
+      height: auto;
+    }
+
+    .iteration-stack {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--section-y) * 2);
+    }
+
+    .design-system-media {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(12px, 2vw, 20px);
+      width: 100%;
+      margin: 0;
+    }
+    .design-system-media__panel {
+      flex: 0 0 auto;
+      line-height: 0;
+    }
+    .design-system-media__panel img {
+      display: block;
+      width: auto;
+      height: clamp(220px, 28vw, 440px);
+      max-width: min(320px, 28vw);
+      -o-object-fit: contain;
+         object-fit: contain;
+      border: 1px solid #d8d8d8;
+      border-radius: 12px;
+    }
+    .design-system-media__video {
+      flex: 1 1 0;
+      min-width: 0;
+      line-height: 0;
+      background: #fff;
+    }
+    .design-system-media__video video {
+      width: 100%;
+      height: clamp(220px, 28vw, 440px);
+      -o-object-fit: contain;
+         object-fit: contain;
+      -o-object-position: top left;
+         object-position: top left;
+      display: block;
+      border-radius: 12px;
+    }
+    @media (max-width: 720px) {
+      .design-system-media {
+        flex-direction: column;
+        height: auto;
+      }
+      .design-system-media__panel img {
+        width: 100%;
+        height: auto;
+      }
+      .design-system-media__video video {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+      }
+    }
+
+    .dynamic-type-compare {
+      width: 100%;
+      max-width: 100%;
+      margin-inline: auto;
+    }
+    .dynamic-type-compare img {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fff;
+    }
+
+    .ideation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(16px, 2vw, 28px);
+    }
+    .ideation-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+    .ideation-card__media {
+      margin: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f7f7f7;
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+      border: none;
+      display: grid;
+      place-items: center;
+    }
+    .ideation-card__media .placeholder {
+      min-height: 0;
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+      background: #f7f7f7;
+      color: #9a9a9a;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .ideation-card__media img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: contain;
+         object-fit: contain;
+      -o-object-position: center;
+         object-position: center;
+      display: block;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .ideation-card__text {
+      padding: 22px 12px 8px;
+      text-align: center;
+    }
+    .ideation-card h3 {
+      margin: 0 0 8px;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: clamp(17px, 1.5vw, 20px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: #2a2a2a;
+      text-align: center;
+    }
+    .ideation-card p {
+      margin: 0 auto;
+      max-width: 28ch;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #777;
+      text-align: center;
+    }
+
+    /* Before / After */
+    .compare-head {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(20px, 3vw, 36px);
+      margin-bottom: clamp(28px, 4vw, 48px);
+      align-items: stretch;
+    }
+    .compare-row:last-child {
+      margin-bottom: 0;
+    }
+    .compare-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      min-width: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .compare-card::after {
+      content: "";
+      display: block;
+      flex: 0 0 4px;
+      width: 100%;
+      background: transparent;
+    }
+    .compare-card--before::after { background: var(--before); }
+    .compare-card--after::after { background: var(--after); }
+    .compare-card__media {
+      background: #fff;
+      aspect-ratio: 16 / 11;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .compare-card__media img {
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .compare-card__body {
+      flex: 1 1 auto;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 22px 22px 20px;
+    }
+    .compare-card__label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    .compare-card--before .compare-card__label { color: var(--before); }
+    .compare-card--after .compare-card__label { color: var(--after); }
+    .compare-card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .compare-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    /* Reflection — same white/black band spacing as .banner */
+    .reflection.banner {
+      background: #000;
+    }
+    .reflection .reflection__body {
+      margin: 28px auto 0;
+      max-width: none;
+      width: 100%;
+      font-family: "Inter Regular", Inter, system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.82);
+      text-wrap: pretty;
+    }
+
+
+    /* Explore more work — between Reflection and footer arch */
+    .other-work {
+      background: #fff;
+      padding: var(--section-y) var(--pad);
+      padding-bottom: calc(var(--section-y) + 24px);
+    }
+    .other-work__inner {
+      max-width: var(--content);
+      margin: 0 auto;
+    }
+    .other-work__title {
+      margin: 0 0 clamp(36px, 4vw, 52px);
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .other-work__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(28px, 3.5vw, 48px) clamp(24px, 3vw, 40px);
+    }
+    .other-work__link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .other-work__media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #e8e8e8;
+    }
+    .other-work__media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .other-work__link:hover .other-work__media img {
+      transform: scale(1.03);
+    }
+    .other-work__name {
+      margin: 16px 0 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(18px, 1.8vw, 22px);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .other-work__date {
+      margin: 6px 0 0;
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    @media (max-width: 720px) {
+      .other-work__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Footer (matches home) — arch: sides low, center high */
+    footer {
+      --footer-bg: #FBF9F7;
+      --footer-arch: clamp(140px, 21vh, 260px);
+      position: relative;
+      background: var(--footer-bg);
+      color: #222;
+      margin-top: calc(var(--footer-arch) + 32px);
+      padding-top: 1px;
+      overflow: visible;
+    }
+    /* Exact inverse of hero Q0.5,0.58 (same curvature, flipped) */
+    footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: var(--footer-arch);
+      background: var(--footer-bg);
+      clip-path: url(#footer-arch-clip);
+      pointer-events: none;
+      z-index: 0;
+    }
+    footer > * {
+      position: relative;
+      z-index: 1;
+    }
+    .footer-clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .footer-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      transform: translateY(calc(var(--footer-arch, 0px) * -0.35));
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: 22px;
+      padding-right: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 72px;
+    }
+    .footer-tagline {
+      max-width: 1120px; /* match case-study --content / .body measure */
+      width: 100%;
+      text-align: center;
+    }
+    .footer-tagline__title,
+    .footer-tagline__sub {
+      margin: 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+    .footer-tagline__sub {
+      margin-top: 14px;
+      color: #8a8a8a;
+    }
+    /* Match case-study .body (Problem section) */
+    .footer-tagline__notes {
+      margin: 36px 0 0;
+      max-width: none;
+      width: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: 0;
+      color: #444;
+      text-align: left;
+    }
+    .footer-tagline__notes p {
+      margin: 0;
+    }
+    .footer-tagline__notes p + p {
+      margin-top: 1em;
+    }
+    .footer-row {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: clamp(24px, 4vw, 56px);
+      padding-bottom: 132px;
+      text-align: left;
+    }
+    .footer-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* Sit a bit below the square — not bottom-aligned */
+      transform: translateY(100px);
+    }
+    .footer-brand__name {
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #222;
+      line-height: 1.2;
+    }
+    .footer-brand__copy {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #999;
+    }
+    .footer-photos {
+      --fp-w: min(360px, 34vw);
+      --fp-gap: clamp(28px, 3.2vw, 44px);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: var(--fp-gap);
+    }
+    .footer-polaroid {
+      flex: 0 0 auto;
+      width: var(--fp-w);
+      background: #fff;
+      padding: 10px;
+      position: relative;
+      box-shadow:
+        0 10px 28px rgba(40, 30, 20, 0.10),
+        0 2px 6px rgba(40, 30, 20, 0.06);
+      transition:
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        margin 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, margin;
+    }
+    /* Stacked: sides tuck behind the center card */
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(-1.6deg) translateX(10px);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(1deg) translateX(-10px);
+    }
+    /* Spread: fan out to left / center / right */
+    .footer-photos.is-spread .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: 0;
+      transform: rotate(-2.2deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: 0;
+      transform: rotate(-0.8deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-polaroid {
+        transition: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1),
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        margin-left: 0;
+        margin-right: 0;
+        transform: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+        transform: rotate(-2.2deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+        transform: rotate(1.4deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        transform: rotate(-0.8deg);
+      }
+    }
+    .footer-polaroid__photo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+    .footer-polaroid__photo img,
+    .footer-polaroid__photo video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .footer-links {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: flex-start;
+      justify-content: flex-end;
+      transform: translateY(100px);
+    }
+    .footer-link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .footer-link-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .footer-link {
+      text-decoration: none;
+      font-size: 14px;
+      color: #717171;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: #222; }
+    /* Align footer edges with top nav */
+    @media (min-width: 1100px) {
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+
+
+    @media (max-width: 900px) {
+      .stats,
+      .split,
+      .ps-grid,
+      .insight,
+      .rethink__row,
+      .rethink__split,
+      .ideation-grid,
+      .compare-row {
+        grid-template-columns: 1fr;
+      }
+      .ideation-card--tall {
+        grid-row: auto;
+      }
+      .ideation-card--tall .ideation-card__media {
+        min-height: 220px;
+      }
+      .nav { justify-content: center; padding-top: 56px; }
+      .nav-home { top: 18px; transform: none; }
+      .footer-row { flex-direction: column; align-items: center; gap: 40px; }
+      .footer-brand { align-items: center; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-photos { --fp-w: min(30vw, 160px); --fp-gap: 8px; }
+      .footer-polaroid { padding: 8px; }
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="./assets/hero-title-mount-fEnsugsh.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/site-footer-DxjJi4lj.css">
+</head>
+<body>
+
+  <!-- Entire layout (nav, curved hero mask defs, hero, content) lives inside this root -->
+  <main class="page-reveal" data-page-reveal>
+
+  <nav class="nav" aria-label="Primary">
+    <a class="nav-home" href="index.html">← Cynthia Cheng</a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html#work">Work</a>
+      <a class="nav-link" href="ai-playground.html">AI Playground</a>
+      <a class="nav-link" href="about.html">About</a>
+      <a class="nav-link" href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a>
+      <a class="nav-link" href="mailto:cynthiaproductdesigner@gmail.com">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Clip path defs stay inside the reveal root so the curve expands with the page -->
+  <svg class="hero-clip-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="hero-convex-clip" clipPathUnits="objectBoundingBox">
+        <!-- Stronger convex curve (was 0.73 mid; steeper = more bulge) -->
+        <path d="M0,0 H1 V1 Q0.5,0.58 0,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <header class="case-hero">
+    <img
+      class="case-hero__media"
+      src="./assets/pathway-onboarding-Cg7Hrflj.png"
+      alt=""
+      aria-hidden="true"
+      fetchpriority="high"
+      decoding="async"
+    >
+    <div class="case-hero__scrim"></div>
+    <h1 class="case-hero__title">Crop Circle System</h1>
+  </header>
+
+  <section class="section overview">
+    <div class="section__inner">
+      <div class="overview__badge-wrap">
+        <div class="launch-badge">
+          <span class="launch-badge__dot" aria-hidden="true"></span>
+          Launched: August, 2024
+        </div>
+      </div>
+      <h2 class="display">Rebuilding the design system for UI consistency</h2>
+      <p class="lede">
+        At Gripp, we moved quickly in our early stages, but now that the product has stabilized, we’re refreshing the UI and rebuilding our design system to strengthen consistency across the team and the product.
+      </p>
+      <div class="stats">
+        <div>
+          <p class="stat__label">Team</p>
+          <ul class="stat__team">
+            <li>Sole Product Designer (Me)</li>
+            <li>1 Product Manager</li>
+            <li>2 Engineers</li>
+          </ul>
+        </div>
+        <div>
+          <p class="stat__label">Engineer &amp; Designer Workload</p>
+          <p class="stat__value stat__value--xl">~ 30%</p>
+          <p class="stat__meta">Reduction in engineering and design workload through a more consistent and reusable design system.</p>
+        </div>
+        <div>
+          <p class="stat__label">QA-Related Issues</p>
+          <p class="stat__value stat__value--xl">~ 40%</p>
+          <p class="stat__meta">Reduction in QA-related issues caused by design inconsistencies across the product.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight section--ps">
+    <div class="section__inner">
+      <div class="ps-card">
+        <div class="problem-split">
+          <div class="problem-split__copy">
+            <p class="eyebrow">Problem</p>
+            <h2 class="display">Gripp's design system hadn't been updated for over a year.</h2>
+            <p class="body">
+              When I first joined Gripp, the design system hadn’t been updated for over a year, and there were many backlog features that still needed exploration and design. Because of that, the design system kept getting pushed back even further.
+            </p>
+          </div>
+          <ol class="problem-points" aria-label="Problem details">
+            <li class="problem-points__item">
+              1. Before the new designer joined, I audited all past work myself. The outdated, unclear design system caused major inconsistencies and couldn’t keep up with new features.
+            </li>
+            <li class="problem-points__item">
+              2. Without a unified component library, developers rebuilt the same components in different ways, creating extra work and inconsistency.
+            </li>
+            <li class="problem-points__item">
+              3. With all the issues above, the team spent significant time fixing QA bugs. And the bugs we missed led to an inconsistent experience for our users.
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="solution">
+    <div class="section__inner">
+      <p class="eyebrow">Solution</p>
+      <h2 class="display">The new design system cuts designer/developer workload by 30% and reduces QA inconsistency fixes by 40%.</h2>
+      <p class="body">
+        After launching the new design system and Storybook for engineers, designers saved over 30% of the time previously spent adjusting differences, while engineers saved time rebuilding components. Overall, we reduced the time spent on QA after launch by more than 40%.
+      </p>
+      <div class="solution-video">
+        <video
+          class="solution-video__player"
+          controls
+          playsinline
+          preload="metadata"
+          src="./assets/crop-circle-system-B67aahcC.mp4"
+        >
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <aside class="banner banner--challenge banner--match-content">
+    <div class="banner__inner">
+      <p class="banner__eyebrow">Challenge</p>
+      <p class="banner__title">How did I rebuild the design system from the new UI foundations and scale it across existing pages, components, and edge-case scenarios?</p>
+    </div>
+  </aside>
+
+  <!-- Heuristic Evaluation -->
+  <section class="section section--tight">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">HEURISTIC EVALUATION</p>
+        <h2 class="display">Gripp’s earlier design lacked a cohesive system, resulting in visual heaviness and fragmented information hierarchy.</h2>
+        <p class="body">
+          With the new designer onboard, we conducted heuristic evaluations together to uncover design and usability issues in the current product. We first evaluated separately, then compared our findings to identify matches and gaps. Here are the main problems we found:
+        </p>
+      </div>
+
+      <div class="heuristic-layout">
+        <figure class="heuristic-screens" aria-label="Gripp activity list reviewed in the heuristic evaluation">
+          <img
+            src="./assets/heuristic-evaluation-screen-B3bX0DoJ.png?v=4"
+            alt="GRIPP Activity and Assets interfaces on desktop and mobile reviewed in the heuristic evaluation"
+            loading="lazy"
+            decoding="async"
+          >
+        </figure>
+
+        <aside class="heuristic-problems-panel" aria-label="Prioritized problems">
+          <h3 class="heuristic-problems-panel__title">Problems</h3>
+          <div class="heuristic-problems-body">
+            <ol class="heuristic-problems-list">
+              <li>
+                <span class="heuristic-problems-list__dot" style="background:#e11d2e" aria-hidden="true"></span>
+                <span><strong>Global issues:</strong> include spacing and alignment problems, unclear “+ vs. create,” overly similar pages, excessive orange, inconsistent top nav.</span>
+              </li>
+              <li>
+                <span class="heuristic-problems-list__dot" style="background:#ef4a56" aria-hidden="true"></span>
+                <span><strong>Lacks a clear, frictionless onboarding experience</strong> across opt-in flows, mailing setup, app/desktop onboarding cards, and guided onboarding alternatives.</span>
+              </li>
+              <li>
+                <span class="heuristic-problems-list__dot" style="background:#f06b74" aria-hidden="true"></span>
+                <span><strong>Requires users to recall</strong> their sign-up method, asset names, icons, and tags.</span>
+              </li>
+              <li>
+                <span class="heuristic-problems-list__dot" style="background:#f3999f" aria-hidden="true"></span>
+                <span><strong>The design lacks consistency:</strong> pill components are reused for asset status and filters, creating confusion between two different functions.</span>
+              </li>
+              <li>
+                <span class="heuristic-problems-list__dot" style="background:#f3c0c4" aria-hidden="true"></span>
+                <span><strong>Information overload:</strong> including reminders, report creation, asset setup, and more.</span>
+              </li>
+            </ol>
+            <div class="heuristic-priority" aria-hidden="true">
+              <span class="heuristic-priority__bar"></span>
+              <div class="heuristic-priority__labels">
+                <span class="heuristic-priority__label">Priority High</span>
+                <span class="heuristic-priority__label">Priority Low</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Design Direction -->
+  <section class="section section--tight">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">DESIGN DIRECTION</p>
+        <h2 class="display">As a result, we redesigned the interface with a new visual and UX approach focused on clarity, hierarchy, and reduced cognitive load.</h2>
+        <p class="body">
+          To address the issues above, we revisited the design and, considering timeline, business, and marketing constraints, rebranded our visual identity and introduced a new UI approach to create a cleaner, more professional yet friendly experience, while improving consistency, scalability, and usability.
+        </p>
+      </div>
+
+      <figure class="rethink__blueprint design-direction-compare" aria-label="Before and after interface redesign">
+        <img
+          src="./assets/design-direction-before-after-DcVMh1XZ.png?v=4"
+          srcset="./assets/design-direction-before-after-DcVMh1XZ.png?v=4 1024w, ./assets/design-direction-before-after@2x-Cxgs1HgM.png?v=4 2048w"
+          sizes="(min-width: 1120px) 1120px, 100vw"
+          alt="Before and after: original GRIPP Activity UI next to the redesigned lighter interface on desktop and mobile"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+    </div>
+  </section>
+
+  <!-- Design Process -->
+  <section class="section section--tight">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">Design Process</p>
+        <h2 class="display">Given our time constraints, we built components using atomic design alongside the key page refresh.</h2>
+        <p class="body">
+          We followed the Atomic Design methodology by Brad Frost. We started by defining base tokens for particles (typography, colors, spacing), then created Atoms as the smallest UI components. These were combined into Molecules, Organisms, and finally Pages.
+        </p>
+      </div>
+
+      <figure class="rethink__blueprint" aria-label="Atomic design system hierarchy">
+        <img
+          src="./assets/design-direction-atomic-Be1J7bgc.png?v=3"
+          alt="Atomic design hierarchy from Particles and Atoms through Molecules, Organisms, and Pages"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+    </div>
+  </section>
+
+  <!-- Ideation - Sitemap and Flow Chart -->
+  <section class="section section--tight section--before-black-band">
+    <div class="section__inner rethink">
+      <div class="rethink__intro rethink__intro--wide">
+        <p class="eyebrow">Ideation - Sitemap and Flow Chart</p>
+        <h2 class="display">With the key pages and components set, I applied them across all pages and edge cases, refining as needed to maintain consistency and scalability.</h2>
+        <p class="body">
+          I shared research results with business partners, product managers, and engineers to propose ideas together, ensuring both user needs and technical feasibility were met.
+        </p>
+      </div>
+
+      <figure class="rethink__blueprint" aria-label="Mobile design direction screen flows">
+        <img
+          src="./assets/design-direction-flows-DKMhUJCp.png?v=2"
+          alt="Four mobile design direction columns mapping Account, Top Card, Chat, Files, and related flows"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+    </div>
+  </section>
+
+  <aside class="banner banner--challenge banner--match-content">
+    <div class="banner__inner">
+      <p class="banner__eyebrow">Main Iterations</p>
+      <p class="banner__title">HMW ensure consistency in UI and reduce gaps between designers and engineers?</p>
+    </div>
+  </aside>
+
+  <!-- Main Iterations — Design Process (×4) -->
+  <section class="section section--tight section--before-black-band">
+    <div class="section__inner iteration-stack">
+      <div class="rethink">
+        <div class="rethink__intro rethink__intro--wide">
+          <p class="eyebrow">DESIGN SYSTEM</p>
+          <h2 class="display">With Figma Variants, we reduced design inconsistencies and scaled components predictably.</h2>
+          <p class="body">
+            Components in Figma were fully configurable using variants and properties, allowing designers to work within the same constraints and think in terms of systems rather than individual screens. This significantly reduced inconsistency, duplicated work, and design drift as the team scaled.
+          </p>
+          <p class="body">
+            Additionally, all components were designed to scale predictably across viewports and were mapped directly to their implemented counterparts in Storybook.
+          </p>
+        </div>
+
+        <figure class="rethink__blueprint design-system-media" aria-label="Figma component properties alongside variant configuration demo">
+          <div class="design-system-media__panel">
+            <img
+              src="./assets/design-system-figma-panel-BUGb-crm.png?v=1"
+              alt="Figma Input component properties panel with state, label, and description controls"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+          <div class="design-system-media__video">
+            <video
+              src="./assets/design-system-variants-75hmvJQC.mp4?v=1"
+              autoplay
+              muted
+              loop
+              playsinline
+              aria-label="Figma variants demo showing configurable input components"
+            ></video>
+          </div>
+        </figure>
+      </div>
+
+      <div class="rethink">
+        <div class="rethink__intro rethink__intro--wide">
+          <p class="eyebrow">Storybook</p>
+          <h2 class="display">With Storybook, we not only reduced developer workload by over 25%, but also lowered QA bugs.</h2>
+          <p class="body">
+            To reduce gaps between designers and engineers—and across engineering teams—we aligned design and implementation through Storybook. While Figma defined design intent and constraints, Storybook became the single source of truth for real component behavior. All components were designed to scale predictably across viewports and mapped directly to implemented components in Storybook. This reduced ambiguity during handoff, minimized back-and-forth questions, and helped engineers across teams implement UI consistently without reinterpreting design decisions.
+          </p>
+        </div>
+
+        <figure class="rethink__blueprint" aria-label="Storybook component library demo">
+          <video
+            src="./assets/design-system-storybook-C6eQEIHu.mp4?v=1"
+            controls
+            muted
+            playsinline
+            aria-label="Storybook showing implemented UI components"
+          ></video>
+        </figure>
+      </div>
+
+      <div class="rethink">
+        <div class="rethink__intro rethink__intro--wide">
+          <p class="eyebrow">Color and Spacing Consideration</p>
+          <h2 class="display">About 30% of our users are older adults, and many of them experience age-related vision issues such as presbyopia.</h2>
+          <p class="body">
+            From user observation, we learned that many users rely on iOS system font settings. Instead of using fixed font sizes, our layouts adapt to iOS Dynamic Type categories. When Accessibility Text Sizes are enabled, the interface automatically shifts to a high-readability layout for a more comfortable reading experience.
+          </p>
+        </div>
+
+        <figure class="rethink__blueprint dynamic-type-compare" aria-label="Standard and Dynamic Type Gripp activity list comparison">
+          <img
+            src="./assets/design-system-dynamic-type-compare-DYeS2wtJ.png?v=2"
+            srcset="./assets/design-system-dynamic-type-compare-DYeS2wtJ.png?v=2 1024w, ./assets/design-system-dynamic-type-compare@2x-DAc-l7ZF.png?v=2 2048w"
+            sizes="(max-width: 1120px) 100vw, 1120px"
+            alt="Side-by-side Gripp activity list comparing standard iOS text size and Dynamic Type accessibility sizes"
+            loading="lazy"
+            decoding="async"
+          >
+        </figure>
+      </div>
+
+      <div class="rethink">
+        <div class="rethink__intro rethink__intro--wide">
+          <p class="eyebrow">Dark Mode</p>
+          <h2 class="display">80% of our users are farmers working in the fields, while the remaining 20% work in factories as mechanics.</h2>
+          <p class="body">
+            After completing accessibility checks, we added more Figma variables, including dark-mode colors. Pre-validating accessibility made it easier to ensure the dark-mode palette also meets AA standards.
+          </p>
+        </div>
+
+        <figure class="rethink__blueprint dark-mode-compare" aria-label="Gripp activity list in light mode and dark mode">
+          <img
+            src="./assets/design-system-dark-mode-compare@2x-RbkYbY_2.png?v=5"
+            srcset="./assets/design-system-dark-mode-compare-Cdi3INb-.png?v=5 1024w, ./assets/design-system-dark-mode-compare@2x-RbkYbY_2.png?v=5 2048w"
+            sizes="(max-width: 1120px) 100vw, 1120px"
+            width="2048"
+            height="1510"
+            alt="Side-by-side Gripp mobile activity list comparing light mode and dark mode themes"
+            loading="lazy"
+            decoding="async"
+          >
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <aside class="banner banner--challenge reflection" id="reflection">
+    <div class="banner__inner">
+      <p class="banner__eyebrow">Reflection</p>
+      <h2 class="banner__title">Empowering Designers with AI to Build Storybook</h2>
+      <p class="reflection__body">
+        When it comes to creating a design system, one of the first questions is always: Do we want Storybook? And if yes, who will build and maintain it? With engineers in short supply in our team, our design team decided to experiment with something new. We turned to <strong>Cursor</strong> to help us build Storybook. The results were eye-opening. AI didn't just speed up the process; it helped close the communication gap between designers and engineers. We could focus on designing components while still making sure everything would work seamlessly in code. It even saved even more time than if engineers had built all the components first. Of course, AI isn't a replacement for human insight. We still relied on engineers' feedback to validate our work and make small adjustments where needed. But seeing AI empower designers in this way, giving us more space for creativity while keeping collaboration smooth, has been truly inspiring.
+      </p>
+    </div>
+  </aside>
+
+  <section class="other-work" id="other-work" aria-label="Explore more work">
+    <div class="other-work__inner">
+      <h2 class="other-work__title">Explore more work</h2>
+      <div class="other-work__grid">
+        <a class="other-work__link" href="wiwant.html">
+          <div class="other-work__media">
+            <img
+              src="./assets/wiwant-card-VBUmYzkD.jpg?v=2"
+              alt="Meeting Wine Lovers' Needs for Business Success"
+              loading="lazy"
+            >
+          </div>
+          <h3 class="other-work__name">Meeting Wine Lovers' Needs for Business Success</h3>
+          <p class="other-work__date">Syscode</p>
+        </a>
+        <a class="other-work__link" href="gripp-rendezvoo.html">
+          <div class="other-work__media">
+            <img
+              src="./assets/atlas-wmb-dashboard-xljBQz_h.png?v=3"
+              alt="Driving Growth by Expanding into Manufacturing"
+              loading="lazy"
+            >
+          </div>
+          <h3 class="other-work__name">Driving Growth by Expanding into Manufacturing</h3>
+          <p class="other-work__date">Gripp</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <svg class="footer-clip-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <clipPath id="footer-arch-clip" clipPathUnits="objectBoundingBox">
+        <!-- Inverse of hero Q0.5,0.58 — same curve shape, flipped to top -->
+        <path d="M0,1 Q0.5,-1 1,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <footer id="contact">
+    <div class="footer-main">
+      <div class="footer-tagline">
+        <h2 class="footer-tagline__title">You made it to the bottom!</h2>
+        <p class="footer-tagline__sub">Each page features a pet I’ve cared for.</p>
+        <div class="footer-tagline__notes">
+          <p>Say hello to Hazel, the absolute sweetest girl!</p>
+          <p>Hazel is my friend's cat, and she loves cozy little spaces, so my apartment was basically her dream home. She's incredibly affectionate and could happily accept endless chin scratches all day.</p>
+          <p>But once nighttime hits, she turns into a tiny race car, zooming around the apartment at full speed before deciding the best place to sleep is... right on my face. Yep, literally on my face.</p>
+          <p>The funniest part? As soon as she goes back to her owner's house, she completely forgets who I am and acts like we've never met before. I have to admit, it makes me a little sad... but that's okay because I love her anyway.</p>
+          <p>She's sweet, cuddly, and full of personality.</p>
+        </div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-brand">
+          <div class="footer-brand__name">Cynthia Cheng</div>
+          <p class="footer-brand__copy">© 2026 Cynthia Cheng. Built with Claude and Cursor.</p>
+        </div>
+        <div class="footer-photos">
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/crop-pet-1-Dc63NTJW.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <video
+                src="./assets/crop-pet-2-DKbLY1et.mp4"
+                muted
+                autoplay
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Pet video"
+              ></video>
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/crop-pet-3-C6P87gWj.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <div class="footer-link-label">Explore</div>
+            <a href="index.html#work" class="footer-link">Work</a>
+            <a href="ai-playground.html" class="footer-link">AI Playground</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-link-group">
+            <div class="footer-link-label">Connect</div>
+            <a href="https://www.linkedin.com/in/cynthia-cheng-aa296814b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Email</a>
+            <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="footer-link" target="_blank" rel="noopener noreferrer">Resume</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  </main>
+
+
+  <script src="js/skip-home-intro.js"></script>
+  <script src="js/footer-photos-spread.js"></script>
+</body>
+</html>

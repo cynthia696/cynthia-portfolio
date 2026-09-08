@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Explore AI in my freetime. — Cynthia Cheng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: "Exposure";
+      src: url("./assets/Exposure-Trial-10-Cvo-Gnpf.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Nav Sans";
+      src: url("./assets/NavSans-BlUVklqW.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --playground-bg: #bedfd4;
+      --playground-base: #ffffff;
+      --ink: #1f1f1f;
+      --muted: #5c5c5c;
+    }
+
+    @property --playground-bg {
+      syntax: "<color>";
+      inherits: true;
+      initial-value: #bedfd4;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    html {
+      background: #fff;
+    }
+
+    /* Lock vertical page scroll until the last carousel card is centered */
+    html.polaroid-carousel-lock,
+    html.polaroid-carousel-lock body {
+      overflow: hidden;
+      height: 100%;
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--ink);
+      background: transparent;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Card color ↔ white */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          ellipse 78% 68% at 50% 52%,
+          var(--playground-bg) 0%,
+          color-mix(in srgb, var(--playground-bg) 50%, white) 45%,
+          color-mix(in srgb, var(--playground-bg) 16%, white) 72%,
+          #ffffff 100%
+        );
+      transition: --playground-bg 0.85s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .nav {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 26px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+      position: relative;
+      z-index: 10;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+    .nav-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: linear-gradient(95deg, #F7C873 0%, #F79E6B 38%, #F08A6E 62%, #E89AB0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: #222;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.18s;
+    }
+    .nav-link:hover { background: #f0f0f0; }
+
+    .page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      /* Match home .hero padding-top under nav */
+      padding: 88px 0 clamp(40px, 6vw, 72px);
+    }
+    @media (min-width: 768px) {
+      .page {
+        padding-top: 104px;
+      }
+    }
+    @media (min-width: 1100px) {
+      .page {
+        padding-top: 112px;
+      }
+    }
+
+    .intro {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 8px;
+      padding: 0 24px;
+      animation: intro-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .intro__brand {
+      font-family: "Exposure", Georgia, serif;
+      font-size: 24px;
+      font-weight: 500;
+      font-style: normal;
+      letter-spacing: -0.02em;
+      line-height: 1.45;
+      margin: 0 0 14px;
+      color: #222222;
+    }
+    @media (min-width: 768px) {
+      .intro__brand {
+        font-size: clamp(28px, calc((100vw - 80px) * 40 / 1320), 40px);
+      }
+    }
+    @media (min-width: 1100px) {
+      .intro__brand {
+        font-size: clamp(40px, calc((100vw - 96px) * 50 / 1400), 50px);
+      }
+    }
+    .intro__lede {
+      margin: 0;
+      font-size: clamp(15px, 1.6vw, 17px);
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 34em;
+      margin-inline: auto;
+    }
+
+    polaroid-carousel {
+      margin-top: clamp(12px, 2vw, 28px);
+      animation: carousel-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+    }
+
+    @keyframes intro-rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes carousel-rise {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Footer (exact match to home) ── */
+    .site-footer {
+      --footer-bg: #FBF9F7;
+      --footer-arch: clamp(140px, 21vh, 260px);
+      background: var(--footer-bg);
+      width: 100%;
+      margin-top: calc(var(--footer-arch) + 32px);
+      padding-top: 1px;
+      position: relative;
+      z-index: 5;
+      overflow: visible;
+    }
+    .site-footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: var(--footer-arch);
+      background: var(--footer-bg);
+      clip-path: url(#footer-arch-clip);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .site-footer > * {
+      position: relative;
+      z-index: 1;
+    }
+    .footer-clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .footer-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      transform: translateY(calc(var(--footer-arch, 0px) * -0.35));
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: 22px;
+      padding-right: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 72px;
+    }
+    .footer-tagline {
+      max-width: 1120px; /* match case-study --content / .body measure */
+      width: 100%;
+      text-align: center;
+    }
+    .footer-tagline__title,
+    .footer-tagline__sub {
+      margin: 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+    .footer-tagline__sub {
+      margin-top: 14px;
+      color: #8a8a8a;
+    }
+    /* Match case-study .body (Problem section) */
+    .footer-tagline__notes {
+      margin: 36px 0 0;
+      max-width: none;
+      width: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: 0;
+      color: #444;
+      text-align: left;
+    }
+    .footer-tagline__notes p {
+      margin: 0;
+    }
+    .footer-tagline__notes p + p {
+      margin-top: 1em;
+    }
+    .footer-row {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: clamp(24px, 4vw, 56px);
+      padding-bottom: 132px;
+      text-align: left;
+    }
+    .footer-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* Sit a bit below the square — not bottom-aligned */
+      transform: translateY(100px);
+    }
+    .footer-brand__name {
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #222;
+      line-height: 1.2;
+    }
+    .footer-brand__copy {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #999;
+    }
+    .footer-photos {
+      --fp-w: min(360px, 34vw);
+      --fp-gap: clamp(28px, 3.2vw, 44px);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: var(--fp-gap);
+    }
+    .footer-polaroid {
+      flex: 0 0 auto;
+      width: var(--fp-w);
+      background: #fff;
+      padding: 10px;
+      position: relative;
+      box-shadow:
+        0 10px 28px rgba(40, 30, 20, 0.10),
+        0 2px 6px rgba(40, 30, 20, 0.06);
+      transition:
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        margin 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, margin;
+    }
+    /* Stacked: sides tuck behind the center card */
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(-1.6deg) translateX(10px);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(1deg) translateX(-10px);
+    }
+    /* Spread: fan out to left / center / right */
+    .footer-photos.is-spread .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: 0;
+      transform: rotate(-2.2deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: 0;
+      transform: rotate(-0.8deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-polaroid {
+        transition: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1),
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        margin-left: 0;
+        margin-right: 0;
+        transform: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+        transform: rotate(-2.2deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+        transform: rotate(1.4deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        transform: rotate(-0.8deg);
+      }
+    }
+    .footer-polaroid__photo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+    .footer-polaroid__photo img,
+    .footer-polaroid__photo video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+    }
+    .footer-links {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: flex-start;
+      justify-content: flex-end;
+      transform: translateY(100px);
+    }
+    .footer-link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .footer-link-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .footer-link {
+      text-decoration: none;
+      font-size: 14px;
+      color: #717171;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: #222; }
+    /* Align footer edges with top nav */
+    @media (min-width: 1100px) {
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+      .nav,
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .footer-row { flex-direction: column; align-items: center; gap: 40px; }
+      .footer-brand { align-items: center; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-photos { --fp-w: min(30vw, 160px); --fp-gap: 8px; }
+      .footer-polaroid { padding: 8px; }
+    }
+
+    @media (max-width: 720px) {
+      .nav-links { display: none; }
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/playground-Dhw_N8Dl.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="./assets/site-footer-DxjJi4lj.css">
+</head>
+<body>
+  <nav class="nav" aria-label="Primary">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-text">Cynthia Cheng</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#work" class="nav-link">Work</a>
+      <a href="ai-playground.html" class="nav-link">AI Playground</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="nav-link" target="_blank" rel="noopener noreferrer">Resume</a>
+      <a href="mailto:cynthiaproductdesigner@gmail.com" class="nav-link">Contact</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <header class="intro">
+      <h1 class="intro__brand">Explore AI in my freetime.</h1>
+      <p class="intro__lede">
+        Tools I like to use: Claude, Cursor, Gemini, ChatGPT, Flora, and more.
+      </p>
+    </header>
+
+    <polaroid-carousel src="images/ai-playground/cards.json"></polaroid-carousel>
+  </main>
+
+  <svg class="footer-clip-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <clipPath id="footer-arch-clip" clipPathUnits="objectBoundingBox">
+        <!-- Inverse of hero Q0.5,0.58 — same curve shape, flipped to top -->
+        <path d="M0,1 Q0.5,-1 1,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <footer id="contact" class="site-footer">
+    <div class="footer-main">
+      <div class="footer-tagline">
+        <h2 class="footer-tagline__title">You made it to the bottom!</h2>
+        <p class="footer-tagline__sub">Each page features a pet I’ve cared for.</p>
+        <div class="footer-tagline__notes">
+          <p>Say hello to Scooby, the sweetest boy!</p>
+          <p>Scooby loves absolutely everyone. I only took care of him for two days, but now whenever he sees me, he follows me everywhere and sometimes even forgets about his mom. Every morning, he also makes a stop by the concierge's desk to collect all the pets and attention he can get.</p>
+          <p>He's not the biggest fan of long walks. Instead, he'd much rather relax at home and watch the pigeons in the backyard looking for food. That's his favorite daily entertainment.</p>
+          <p>He's gentle, lovable, and one of the sweetest boys you'll ever meet.</p>
+        </div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-brand">
+          <div class="footer-brand__name">Cynthia Cheng</div>
+          <p class="footer-brand__copy">© 2026 Cynthia Cheng. Built with Claude and Cursor.</p>
+        </div>
+        <div class="footer-photos">
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/ai-pet-1-DI6xsKX0.jpg?v=2" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <video
+                src="./assets/ai-pet-2-Bz-RiCzF.mp4"
+                muted
+                autoplay
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Pet video"
+              ></video>
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="./assets/ai-pet-3-BMLakxm6.jpg?v=3" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <div class="footer-link-label">Explore</div>
+            <a href="index.html#work" class="footer-link">Work</a>
+            <a href="ai-playground.html" class="footer-link">AI Playground</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-link-group">
+            <div class="footer-link-label">Connect</div>
+            <a href="https://www.linkedin.com/in/cynthia-cheng-aa296814b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Email</a>
+            <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="footer-link" target="_blank" rel="noopener noreferrer">Resume</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/skip-home-intro.js"></script>
+  <script src="js/footer-photos-spread.js"></script>
+</body>
+</html>
