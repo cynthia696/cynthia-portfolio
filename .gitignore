@@ -10,3 +10,4 @@ images/_chk_*
 images/_inspect_*
 # Source captures — site uses compressed .mp4 (GitHub 100MB limit)
 *.mov
+.github/workflows/
