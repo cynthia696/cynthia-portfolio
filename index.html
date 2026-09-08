@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="intro.json" as="fetch" crossorigin>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
@@ -1174,6 +1175,29 @@
         }
       }
 
+      /** Start intro ASAP — do not wait for homepage images/videos (window load). */
+      function whenReadyForIntro(fn) {
+        const run = () => {
+          if (typeof lottie !== 'undefined') {
+            fn();
+            return;
+          }
+          let tries = 0;
+          const id = setInterval(() => {
+            tries += 1;
+            if (typeof lottie !== 'undefined' || tries > 40) {
+              clearInterval(id);
+              fn();
+            }
+          }, 25);
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', run, { once: true });
+        } else {
+          run();
+        }
+      }
+
       function lockScroll() {
         document.body.classList.add('entrance-lock', 'intro-active');
         document.documentElement.style.overflow = 'hidden';
@@ -1414,7 +1438,9 @@
       } else {
         lockScroll();
         document.body.classList.add('entrance-active');
-        whenWindowLoaded(playIntro);
+        // Show peach splash immediately; start Lottie without waiting for images/videos
+        if (loader) loader.removeAttribute('hidden');
+        whenReadyForIntro(playIntro);
       }
 
       // Logo on home: stay on final layout, scroll to top (never re-run intro)
