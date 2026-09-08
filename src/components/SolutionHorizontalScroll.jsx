@@ -1,15 +1,33 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLayoutEffect, useRef, useState } from 'react';
 
-const CARD1_BG = '/images/solution-card1-bg.png?v=1';
-const MOBILE_DEMO_1 = '/images/mobile-demo-1.webm?v=3';
+import card1Bg from '../../images/solution-card1-bg.png';
+import card3Bg from '../../images/solution-card3-bg.png';
+import card5Bg from '../../images/solution-card5-bg.png';
+import mobileDemo1 from '../../images/mobile-demo-1.webm';
+import mobileDemo3 from '../../images/mobile-demo-3.webm';
+import mobileDemo4 from '../../images/mobile-demo-4.webm';
+import mobileDemo5 from '../../images/mobile-demo-5.webm';
+import desktopDemo2 from '../../images/desktop-demo-2.webm';
+import permissionsFlexible1 from '../../images/permissions-flexible-group-1.png';
+import permissionsFlexible2 from '../../images/permissions-flexible-group-2.png';
+import permissionsDirectReporting from '../../images/permissions-direct-reporting.png';
+import permissionsActivityLeft from '../../images/permissions-activity-left.png';
+import permissionsActivityRight from '../../images/permissions-activity-right.png';
+import wiwantFlavours from '../../images/wiwant-solution/01-flavours.png';
+import wiwantExplore from '../../images/wiwant-solution/02-explore.png';
+import wiwantCellarNotes from '../../images/wiwant-solution/03-cellar-notes.png';
+import wiwantScan from '../../images/wiwant-solution/04-scan.png';
+import wiwantSocialNotes from '../../images/wiwant-solution/05-social-notes.png';
+import wiwantComments from '../../images/wiwant-solution/06-comments.png';
+import wiwantDetail from '../../images/wiwant-solution/07-detail.png';
 
 const autoCollectCustomerDataCard = {
   title: 'Auto-Collect Customer Data',
   description:
     'Before, customer data was manual. Now, warranty registration and one-tap scanning automatically link customers to assets with no paperwork.',
-  image: CARD1_BG,
-  video: MOBILE_DEMO_1,
+  image: card1Bg,
+  video: mobileDemo1,
   hasAlpha: true,
   type: 'standard',
 };
@@ -19,7 +37,7 @@ const centralizedClientInformationCard = {
   description:
     'Before, Kristan juggled WhatsApp, iMessage, and Excel for clients. Now reports and add-ons live in one place, saving her 35% of her time every day.',
   background: 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)',
-  video: '/images/desktop-demo-2.webm?v=2',
+  video: desktopDemo2,
   hasAlpha: true,
   type: 'desktop',
 };
@@ -37,8 +55,8 @@ export const defaultSolutionCards = [
     id: 3,
     title: 'Direct Manufacturer Reporting',
     description: 'Customers can report issues directly to manufacturers, who can view and resolve all reports in one place instead of juggling calls, emails, and messages.',
-    image: '/images/solution-card3-bg.png?v=2',
-    video: '/images/mobile-demo-3.webm',
+    image: card3Bg,
+    video: mobileDemo3,
     hasAlpha: true,
     type: 'standard',
   },
@@ -47,7 +65,7 @@ export const defaultSolutionCards = [
     title: 'Direct Issue Capture',
     description: 'August can investigate issues directly and message customers for additional details, including real-time photos and videos—without relying on customer support.',
     background: 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)',
-    video: '/images/mobile-demo-4.webm',
+    video: mobileDemo4,
     hasAlpha: true,
     type: 'standard',
   },
@@ -55,8 +73,8 @@ export const defaultSolutionCards = [
     id: 5,
     title: 'Engage Customers Proactively',
     description: 'Manufacturers can preset maintenance routines while customers simply log usage. The system alerts both sides when service is due, extending product life and strengthening customer relationships.',
-    image: '/images/solution-card5-bg.png',
-    video: '/images/mobile-demo-5.webm',
+    image: card5Bg,
+    video: mobileDemo5,
     hasAlpha: true,
     type: 'standard',
   },
@@ -73,7 +91,7 @@ export const permissionsSolutionCards = [
     description:
       'Based on client needs, Gripp can choose the right permission level when setting up client accounts.',
     video: undefined,
-    mediaImage: '/images/permissions-flexible-group-1.png?v=5',
+    mediaImage: permissionsFlexible1,
     hasAlpha: false,
   },
   {
@@ -83,7 +101,7 @@ export const permissionsSolutionCards = [
     description:
       'Managers can now define account types for new hires and assign relevant assets and groups during onboarding.',
     video: undefined,
-    mediaImage: '/images/permissions-flexible-group-2.png?v=5',
+    mediaImage: permissionsFlexible2,
     hasAlpha: false,
   },
   {
@@ -93,7 +111,7 @@ export const permissionsSolutionCards = [
       'Before, Mariah shared everything. Now, she shares only what each employee needs. Seasonal workers see only what matters, so they can focus without extra explanation.',
     background: permissionsLightBg,
     video: undefined,
-    mediaImage: '/images/permissions-direct-reporting.png?v=2',
+    mediaImage: permissionsDirectReporting,
     hasAlpha: false,
     type: 'standard',
   },
@@ -104,10 +122,7 @@ export const permissionsSolutionCards = [
       'When Devin joins different workplaces, he can view All Activity to see his to-do tasks and what he has completed before. He can also filter by different workplaces.',
     background: permissionsLightBg,
     video: undefined,
-    mediaImages: [
-      '/images/permissions-activity-left.png?v=5',
-      '/images/permissions-activity-right.png?v=5',
-    ],
+    mediaImages: [permissionsActivityLeft, permissionsActivityRight],
     hasAlpha: true,
     type: 'wide-phones',
   },
@@ -118,7 +133,7 @@ export const wiwantSolutionCards = [
     id: 1,
     title: 'Taste onboarding',
     description: 'New drinkers pick 5+ flavour profiles so WIWANT can start learning what they actually like.',
-    screenshot: '/images/wiwant-solution/01-flavours.png?v=5',
+    screenshot: wiwantFlavours,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -126,7 +141,7 @@ export const wiwantSolutionCards = [
     id: 2,
     title: 'Personalized picks',
     description: 'Home explores wines by match rate, market rating, and price—curated from each drinker’s taste.',
-    screenshot: '/images/wiwant-solution/02-explore.png?v=5',
+    screenshot: wiwantExplore,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -134,7 +149,7 @@ export const wiwantSolutionCards = [
     id: 3,
     title: 'Cellar notes',
     description: 'Track your bottles with ratings, tasting notes, and photos—so preferences stay portable over time.',
-    screenshot: '/images/wiwant-solution/03-cellar-notes.png?v=5',
+    screenshot: wiwantCellarNotes,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -142,7 +157,7 @@ export const wiwantSolutionCards = [
     id: 4,
     title: 'Label scan',
     description: 'Point the camera at a bottle to identify the wine and see match vs market rates in seconds.',
-    screenshot: '/images/wiwant-solution/04-scan.png?v=5',
+    screenshot: wiwantScan,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -150,7 +165,7 @@ export const wiwantSolutionCards = [
     id: 5,
     title: 'Community notes',
     description: 'Browse what other drinkers are saying—ratings, pairings, and real photos from real bottles.',
-    screenshot: '/images/wiwant-solution/05-social-notes.png?v=5',
+    screenshot: wiwantSocialNotes,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -158,7 +173,7 @@ export const wiwantSolutionCards = [
     id: 6,
     title: 'Conversations',
     description: 'Dive into comments on a tasting to learn how others experience the same wine.',
-    screenshot: '/images/wiwant-solution/06-comments.png?v=5',
+    screenshot: wiwantComments,
     background: 'transparent',
     type: 'phone-shot',
   },
@@ -166,7 +181,7 @@ export const wiwantSolutionCards = [
     id: 7,
     title: 'Wine detail',
     description: 'See origin, grapes, tasting notes, and drinking suggestions—enough to buy with confidence.',
-    screenshot: '/images/wiwant-solution/07-detail.png?v=5',
+    screenshot: wiwantDetail,
     background: 'transparent',
     type: 'phone-shot',
   },
