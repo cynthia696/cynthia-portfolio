@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Cynthia Cheng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: "Exposure";
+      src: url("fonts/Exposure-Trial-10.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Nav Sans";
+      src: url("fonts/NavSans.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fff;
+      --ink: #111;
+      --muted: #5c5c5c;
+      --line: rgba(0, 0, 0, 0.08);
+      /* Match work/case study content measure */
+      --pad: clamp(24px, 5vw, 80px);
+      --content: 1120px;
+      /* Hero video + left titles share this width so text columns align */
+      --about-media: 372px;
+      --about-hero-gap: clamp(28px, 3.5vw, 52px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--bg);
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    /* ── Nav (exact match to home) ── */
+    .nav {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 26px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+    .nav-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: linear-gradient(95deg, #F7C873 0%, #F79E6B 38%, #F08A6E 62%, #E89AB0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: #222;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.18s;
+    }
+    .nav-link:hover { background: #f0f0f0; }
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+    }
+    .nav-burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #222;
+      border-radius: 2px;
+    }
+
+    /* ── Page shell — same content width as work case studies ── */
+    /* Top spacing matches home .hero → nav gap */
+    .about-page {
+      padding: 88px var(--pad) 0;
+    }
+    @media (min-width: 768px) {
+      .about-page { padding-top: 104px; }
+    }
+    @media (min-width: 1100px) {
+      .about-page { padding-top: 112px; }
+    }
+    .about-inner {
+      max-width: var(--content);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Hero ── */
+    .about-hero {
+      display: grid;
+      grid-template-columns: var(--about-media) 1fr;
+      gap: var(--about-hero-gap);
+      align-items: start;
+      padding-bottom: 132px;
+    }
+    .about-video {
+      position: relative;
+      width: 100%;
+      max-width: var(--about-media);
+      aspect-ratio: 4 / 5;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #e4e2de;
+    }
+    .about-video__el {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #e4e2de;
+    }
+    .about-video__placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #9a9894;
+      font-size: 14px;
+      font-weight: 500;
+      pointer-events: none;
+    }
+    .about-video__placeholder svg {
+      width: 28px;
+      height: 28px;
+      opacity: 0.7;
+    }
+    .about-video.has-media .about-video__placeholder {
+      display: none;
+    }
+    .about-hero__media {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      max-width: var(--about-media);
+      width: 100%;
+    }
+    .about-play-cue {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 40px 0 0;
+      margin-left: clamp(-48px, -4vw, -24px);
+      max-width: calc(100% + 48px);
+      color: #1a1a1a;
+      overflow: visible;
+    }
+    .about-play-cue__line {
+      flex: 0 0 auto;
+      width: 92px;
+      height: 48px;
+      overflow: visible;
+      transform: rotate(28deg) translateY(-20px);
+      transform-origin: 30% 55%;
+      /* Tip sits under the “C” */
+      margin-right: -8px;
+    }
+    .about-play-cue__line path {
+      fill: none;
+      stroke: #1a1a1a;
+      stroke-width: 5.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: var(--cue-len, 400);
+      stroke-dashoffset: var(--cue-len, 400);
+    }
+    .about-play-cue__text {
+      margin: 0 0 0 18px;
+      padding-right: 0.35em;
+      font-family: "Caveat", cursive;
+      font-weight: 700;
+      font-size: clamp(30px, 3.2vw, 38px);
+      line-height: 1.1;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: visible;
+      clip-path: inset(0 100% 0 0);
+    }
+    .about-play-cue.is-on .about-play-cue__line path {
+      animation: about-cue-draw 1.05s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .about-play-cue.is-on .about-play-cue__text {
+      animation: about-cue-reveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+    }
+    @keyframes about-cue-draw {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes about-cue-reveal {
+      /* Extra right inset room so Caveat “!” isn’t clipped */
+      to { clip-path: inset(0 -0.5em 0 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .about-play-cue__line path,
+      .about-play-cue__text {
+        animation: none !important;
+        stroke-dashoffset: 0;
+        clip-path: none;
+      }
+    }
+    .about-hello {
+      font-family: "Exposure", Georgia, serif;
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.45;
+      margin-bottom: 24px;
+      color: #222;
+    }
+    @media (min-width: 768px) {
+      .about-hello {
+        font-size: clamp(28px, calc((100vw - 80px) * 40 / 1320), 40px);
+        white-space: nowrap;
+      }
+    }
+    @media (min-width: 1100px) {
+      .about-hello {
+        font-size: clamp(40px, calc((100vw - 96px) * 50 / 1400), 50px);
+      }
+    }
+    .about-lede {
+      font-size: 17px;
+      line-height: 1.65;
+      color: #2a2a2a;
+      max-width: 40.5em;
+      margin-bottom: 36px;
+    }
+    .about-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 40px;
+      margin-bottom: 0;
+    }
+    .about-split h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .about-split p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* ── Section band — same media column + gap as hero so bodies align ── */
+    .about-band {
+      display: grid;
+      grid-template-columns: var(--about-media) 1fr;
+      gap: var(--about-hero-gap);
+      padding: 56px 0;
+      border-top: 1px solid var(--line);
+    }
+    .about-band--no-line {
+      border-top: none;
+    }
+    .about-band__title {
+      font-size: clamp(22px, 2.4vw, 28px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      align-self: start;
+      position: sticky;
+      top: 32px;
+      max-width: 12ch;
+      text-wrap: balance;
+    }
+    .powers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px 40px;
+    }
+    .power h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.015em;
+    }
+    .power p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    /* ── FAQ accordion ── */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--line);
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    .faq-item summary {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 24px;
+      padding: 22px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item__q {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: #111;
+      line-height: 1.35;
+    }
+    .faq-item__icon {
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1;
+      color: #111;
+      transition: transform 0.2s ease;
+    }
+    .faq-item[open] .faq-item__icon {
+      transform: rotate(45deg);
+    }
+    .faq-item__a {
+      padding: 0 40px 10px 0;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: none;
+      width: 100%;
+    }
+    .faq-item__a:last-of-type {
+      padding-bottom: 22px;
+    }
+
+    /* ── About photo marquee (same motion/size as home freetime, no title) ── */
+    .about-marquee {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 56px 22px 64px;
+    }
+    .about-marquee__viewport {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      container-type: inline-size;
+      container-name: about-marquee;
+    }
+    .about-marquee__viewport::before,
+    .about-marquee__viewport::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: clamp(40px, 6vw, 80px);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .about-marquee__viewport::before {
+      left: 0;
+      background: linear-gradient(to right, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .about-marquee__viewport::after {
+      right: 0;
+      background: linear-gradient(to left, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .about-marquee__track {
+      display: flex;
+      width: max-content;
+      animation: about-marquee 50s linear infinite;
+      will-change: transform;
+    }
+    .about-marquee__group {
+      display: flex;
+      gap: 12px;
+      padding-right: 12px;
+    }
+    .about-marquee__item {
+      flex: 0 0 auto;
+      width: calc((100cqi - 48px) / 5);
+      min-width: 180px;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #e8e8e8;
+    }
+    .about-marquee__item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+    }
+    /* Keep headroom for tightly framed portraits */
+    .about-marquee__item--top img {
+      object-position: center top;
+    }
+    @keyframes about-marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .about-marquee__track { animation: none; }
+    }
+
+    /* ── Experience ── */
+    .exp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .exp-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 24px 28px;
+      align-items: start;
+    }
+    .exp-dates {
+      font-size: 14px;
+      color: var(--muted);
+      padding-top: 3px;
+      margin: 0;
+    }
+    .exp-org {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 4px;
+    }
+    .exp-role {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .exp-desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 42em;
+    }
+    .exp-desc ul {
+      margin: 0;
+      padding-left: 1.1em;
+    }
+    .exp-desc li + li { margin-top: 6px; }
+
+    /* ── Footer (exact match to home) ── */
+    footer {
+      --footer-bg: #FBF9F7;
+      --footer-arch: clamp(140px, 21vh, 260px);
+      position: relative;
+      background: var(--footer-bg);
+      color: #222;
+      margin-top: calc(var(--footer-arch) + 32px);
+      padding-top: 1px;
+      overflow: visible;
+    }
+    /* Exact inverse of hero Q0.5,0.58 (same curvature, flipped) */
+    footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: var(--footer-arch);
+      background: var(--footer-bg);
+      clip-path: url(#footer-arch-clip);
+      pointer-events: none;
+      z-index: 0;
+    }
+    footer > * {
+      position: relative;
+      z-index: 1;
+    }
+    .footer-clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .footer-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      transform: translateY(calc(var(--footer-arch, 0px) * -0.35));
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: 22px;
+      padding-right: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 72px;
+    }
+    .footer-tagline {
+      max-width: 1120px; /* match case-study --content / .body measure */
+      width: 100%;
+      text-align: center;
+    }
+    .footer-tagline__title,
+    .footer-tagline__sub {
+      margin: 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+    .footer-tagline__sub {
+      margin-top: 14px;
+      color: #8a8a8a;
+    }
+    /* Match case-study .body (Problem section) */
+    .footer-tagline__notes {
+      margin: 36px 0 0;
+      max-width: none;
+      width: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: 0;
+      color: #444;
+      text-align: left;
+    }
+    .footer-tagline__notes p {
+      margin: 0;
+    }
+    .footer-tagline__notes p + p {
+      margin-top: 1em;
+    }
+    .footer-row {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: clamp(24px, 4vw, 56px);
+      padding-bottom: 72px;
+      text-align: left;
+    }
+    .footer-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* Sit a bit below the square — not bottom-aligned */
+      transform: translateY(100px);
+    }
+    .footer-brand__name {
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #222;
+      line-height: 1.2;
+    }
+    .footer-brand__copy {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #999;
+    }
+    .footer-photos {
+      --fp-w: min(360px, 34vw);
+      --fp-gap: clamp(28px, 3.2vw, 44px);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: var(--fp-gap);
+    }
+    .footer-polaroid {
+      flex: 0 0 auto;
+      width: var(--fp-w);
+      background: #fff;
+      padding: 10px;
+      position: relative;
+      box-shadow:
+        0 10px 28px rgba(40, 30, 20, 0.10),
+        0 2px 6px rgba(40, 30, 20, 0.06);
+      transition:
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        margin 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, margin;
+    }
+    /* Stacked: sides tuck behind the center card */
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(-1.6deg) translateX(10px);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(1deg) translateX(-10px);
+    }
+    /* Spread: fan out to left / center / right */
+    .footer-photos.is-spread .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: 0;
+      transform: rotate(-2.2deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: 0;
+      transform: rotate(-0.8deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-polaroid {
+        transition: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1),
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        margin-left: 0;
+        margin-right: 0;
+        transform: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+        transform: rotate(-2.2deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+        transform: rotate(1.4deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        transform: rotate(-0.8deg);
+      }
+    }
+    .footer-polaroid__photo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+    .footer-polaroid__photo img,
+    .footer-polaroid__photo video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .footer-polaroid__img--lift {
+      object-position: center 18%;
+    }
+    .footer-polaroid__img--lift-more {
+      object-position: center 62%;
+    }
+    .footer-links {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: flex-start;
+      justify-content: flex-end;
+      transform: translateY(100px);
+    }
+    .footer-link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .footer-link-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .footer-link {
+      text-decoration: none;
+      font-size: 14px;
+      color: #717171;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: #222; }
+    /* Align footer edges with top nav */
+    @media (min-width: 1100px) {
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+
+
+    /* Desktop (≥1100): nav/footer/marquee keep home 240px inset;
+       about content stays centered at --content (1120px) like work pages */
+    @media (min-width: 1100px) {
+      .nav,
+      .footer-main,
+      .about-marquee {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+      .about-hero {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .about-video {
+        max-width: 320px;
+      }
+      .about-play-cue {
+        flex-wrap: wrap;
+      }
+      .about-play-cue__text {
+        white-space: normal;
+      }
+      .about-band {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 40px 0;
+      }
+      .about-band__title {
+        position: static;
+      }
+      .powers-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .about-gallery {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .exp-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .about-split {
+        grid-template-columns: 1fr;
+      }
+      .about-marquee {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+      .footer-row { flex-direction: column; align-items: center; gap: 40px; }
+      .footer-brand { align-items: center; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-photos { --fp-w: min(30vw, 160px); --fp-gap: 8px; }
+      .footer-polaroid { padding: 8px; }
+    }
+
+    @media (max-width: 560px) {
+      .about-gallery { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/site-footer.css?v=7">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-text">Cynthia Cheng</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#work" class="nav-link">Work</a>
+      <a href="ai-playground.html" class="nav-link">AI Playground</a>
+      <a href="about.html" class="nav-link" aria-current="page">About</a>
+      <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="nav-link" target="_blank" rel="noopener noreferrer">Resume</a>
+      <a href="mailto:cynthiaproductdesigner@gmail.com" class="nav-link">Contact</a>
+    </div>
+    <button class="nav-burger" aria-label="Menu" onclick="document.querySelector('.nav-links').style.display = document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex'">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="about-page">
+    <div class="about-inner">
+
+      <!-- Hero -->
+      <section class="about-hero" aria-labelledby="about-hello">
+        <div class="about-hero__media">
+          <div class="about-video" id="about-video">
+            <video
+              class="about-video__el"
+              controls
+              playsinline
+              preload="metadata"
+              poster="images/about-poster.jpg?v=2"
+              aria-label="About video"
+            >
+              <source src="videos/about.mp4?v=3" type="video/mp4" />
+            </video>
+            <div class="about-video__placeholder" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="3" y="5" width="14" height="14" rx="2"/>
+                <path d="M17 10.5l4-2.5v8l-4-2.5z"/>
+              </svg>
+              Drop a video here
+            </div>
+          </div>
+        </div>
+        <div>
+          <h1 class="about-hello" id="about-hello">Cynthia is a Product Designer</h1>
+          <p class="about-lede">
+            I’m a product designer who loves taking messy, high-stakes problems and turning them into something clear and shippable. Think AI-forward workflows, solid design foundations, and systems that help teams move with confidence. I care a lot about structure, storytelling, and making complex products&nbsp;feel&nbsp;human.
+          </p>
+          <div class="about-split">
+            <div>
+              <h3>Day job</h3>
+              <p>
+                Product Designer at Gripp. I lead end-to-end product work across analytics, permissions, and the design system, and I partner closely with eng, PMs, and the field every day.
+              </p>
+            </div>
+            <div>
+              <h3>Out of office</h3>
+              <p>
+                When I’m not building things, I love walking my dog, traveling with friends, and chatting with neighbors and pet parents. At this point, I feel like I know every dog in the neighborhood!
+              </p>
+            </div>
+          </div>
+          <p class="about-play-cue" id="about-play-cue">
+            <svg class="about-play-cue__line" viewBox="0 0 120 70" aria-hidden="true" focusable="false">
+              <!-- Small loop + short tip ending at the text -->
+              <path
+                id="about-cue-path"
+                d="M8 44 C26 54, 46 52, 58 38 C68 28, 68 16, 56 16 C44 16, 42 30, 52 42 C58 50, 78 52, 108 34 C112 30, 116 28, 118 26"
+              />
+            </svg>
+            <span class="about-play-cue__text">Click play to hear me say hi!</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- Super powers -->
+      <section class="about-band" aria-labelledby="powers-title">
+        <h2 class="about-band__title" id="powers-title">My super powers</h2>
+        <div class="powers-grid">
+          <article class="power">
+            <h3>Adaptability</h3>
+            <p>
+              With experience spanning a fast-paced software agency serving both B2B and B2C clients, as well as Gripp’s complex B2B SaaS startup, I can navigate ambiguity quickly and identify the underlying problem.
+            </p>
+          </article>
+          <article class="power">
+            <h3>Ownership</h3>
+            <p>
+              With natural curiosity, I look beyond design to understand the business. That ownership mentality helped me lead a global project within three months at Gripp and onboard new teammates by month six.
+            </p>
+          </article>
+          <article class="power">
+            <h3>Detail Oriented</h3>
+            <p>
+              In the past, I worked primarily as a sole designer partnering with multiple engineers. That experience taught me to think through all scenarios and edge cases, resulting in more well-rounded designs.
+            </p>
+          </article>
+          <article class="power">
+            <h3>Design Speed</h3>
+            <p>
+              I have optimized my workflows and tools to focus on generating ideas and exploring a larger volume of options in a shorter amount of time, allowing me to explore solutions thoroughly and deeply.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="about-band" aria-labelledby="faq-title">
+        <h2 class="about-band__title" id="faq-title">Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q">What’s your AI workflow?</span>
+              <span class="faq-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="faq-item__a">
+              I use AI throughout my entire design process, from research to delivery. I think of it as a teammate that helps me move faster, but I’m still the one making the decisions.
+            </p>
+            <p class="faq-item__a">
+              For research, I use ChatGPT, Gemini, and Claude for things like competitor research and learning new domains. After interviews, I use Dovetail and Maze to quickly summarize insights and spot patterns, so I can spend more time thinking instead of organizing notes.
+            </p>
+            <p class="faq-item__a">
+              For ideation, I use Claude Design to explore different design directions. I bring in references from Mobbin, and if there’s an existing design system, I’ll provide the design.md file and the GitHub design system link upfront, so the concepts stay consistent with the existing system.
+            </p>
+            <p class="faq-item__a">
+              I also use Cursor to speed up implementation and collaborate better with engineers.
+            </p>
+            <p class="faq-item__a">
+              For me, AI doesn’t replace design thinking. It just helps me spend less time on repetitive tasks and more time solving the right problems.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q">What’s your design process?</span>
+              <span class="faq-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="faq-item__a">
+              My design process is pretty flexible because every project is different. It really depends on the level of clarity, the timeline, and the resources, but I usually follow the same overall flow.
+            </p>
+            <p class="faq-item__a">
+              First, I make sure we’re solving the right problem by understanding the user needs, business goals, success metrics, and any constraints.
+            </p>
+            <p class="faq-item__a">
+              Then I do the right amount of research. If things are clear, I’ll lean on existing data and competitor research. If there’s more uncertainty, I’ll talk to users and validate assumptions.
+            </p>
+            <p class="faq-item__a">
+              Next, I design, test, and iterate. I work closely with PMs and engineers, explore different ideas, and validate them early whenever possible.
+            </p>
+            <p class="faq-item__a">
+              After launch, I look at user feedback and product metrics to see what’s working, then keep improving. To me, design is never really finished. It’s all about learning and iterating.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q">Are you more of a researcher or a designer?</span>
+              <span class="faq-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="faq-item__a">
+              I’d say I’m both. It really depends on the project’s level of clarity and risk.
+            </p>
+            <p class="faq-item__a">
+              If the problem is already well defined and the risk is low, I like to move quickly, ship, measure, and iterate based on real user data.
+            </p>
+            <p class="faq-item__a">
+              If there’s still some uncertainty, I’ll do lightweight research like user interviews or usability testing to make sure we truly understand the problem before designing.
+            </p>
+            <p class="faq-item__a">
+              For highly ambiguous or high-risk projects, I spend even more time on research and validation because that’s where it has the biggest impact. I like to focus the team’s time and resources where they reduce the most risk, instead of doing the same amount of research for every project.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q">How do you work with PMs &amp; engineers?</span>
+              <span class="faq-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="faq-item__a">
+              I like to involve PMs and engineers as early as possible. I really believe the best products come from working together, not handing designs off at the end.
+            </p>
+            <p class="faq-item__a">
+              From day one, we align on the business goals, user needs, and any technical constraints. That helps us make better decisions early and avoids surprises later. My goal is to make sure what we design is not only great for users, but also valuable for the business and realistic to build.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q">When can you start full-time?</span>
+              <span class="faq-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="faq-item__a">
+              I would need about two to three weeks’ notice before I can start. After that, I’ll be ready and excited for my next chapter! 😊
+            </p>
+            <p class="faq-item__a">
+              Happy to chat about the role, projects, or timelines anytime at
+              <a href="mailto:cynthiaproductdesigner@gmail.com">cynthiaproductdesigner@gmail.com</a>.
+            </p>
+          </details>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Photo marquee — same size/motion as home freetime; photos from images/about/ -->
+    <section class="about-marquee" aria-label="Photos">
+      <div class="about-marquee__viewport">
+        <div class="about-marquee__track">
+          <div class="about-marquee__group">
+            <div class="about-marquee__item"><img src="images/about/IMG_2074.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_2275.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_2452.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_3109.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item about-marquee__item--top"><img src="images/about/IMG_8584.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_9110.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_8965.jpg" alt="" loading="lazy"></div>
+          </div>
+          <div class="about-marquee__group" aria-hidden="true">
+            <div class="about-marquee__item"><img src="images/about/IMG_2074.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_2275.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_2452.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_3109.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item about-marquee__item--top"><img src="images/about/IMG_8584.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_9110.jpg" alt="" loading="lazy"></div>
+            <div class="about-marquee__item"><img src="images/about/IMG_8965.jpg" alt="" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="about-inner">
+
+      <!-- Experience -->
+      <section class="about-band about-band--no-line" aria-labelledby="exp-title">
+        <h2 class="about-band__title" id="exp-title">Experience</h2>
+        <div class="exp-list">
+          <article class="exp-row">
+            <p class="exp-dates">10.2024 – Present</p>
+            <div>
+              <h3 class="exp-org">Gripp</h3>
+              <p class="exp-role">Product Designer · B2B SaaS Startup</p>
+              <div class="exp-desc">
+                <ul>
+                  <li>Led 0→1 multi-platform design for an AE50 award-winning innovation, empowering manufacturers to capture field data, streamline internal alignment and aftermarket supply chains, and drive 30% user growth.</li>
+                  <li>Revamped onboarding and AI integration for customer support, reducing internal response time 45% and enhancing team efficiency.</li>
+                  <li>Led end-to-end design of secure access controls, enabling complex workflows while upholding internal data privacy.</li>
+                  <li>Established a 0–1 design system, providing detailed annotations for engineering to ensure inclusive experiences across web and mobile.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+          <article class="exp-row">
+            <p class="exp-dates">01.2021 – 12.2021<br>08.2023 – 10.2024</p>
+            <div>
+              <h3 class="exp-org">SYSCODE</h3>
+              <p class="exp-role">Product Designer · Software Agency</p>
+              <div class="exp-desc">
+                <ul>
+                  <li>Led a 0–1 B2B/B2C SaaS IoT fuel management platform, earning 300+ five-star ratings and cutting internal communication by 60%.</li>
+                  <li>Shipped a pigeon-racing analytics dashboard, reducing internal operations time by 55%+.</li>
+                  <li>Led usability testing for AFTEE, navigating fintech regulatory constraints to drive stakeholder alignment on high-fidelity designs that lifted ratings from 3.2 to 4.5.</li>
+                  <li>Drove 20% wine sales growth in two months by designing end-to-end interaction, reaching 10K downloads in the first three months.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+          <article class="exp-row">
+            <p class="exp-dates">06.2022 – 08.2022</p>
+            <div>
+              <h3 class="exp-org">IESO</h3>
+              <p class="exp-role">Product Designer Intern · Enterprise Internal System</p>
+              <div class="exp-desc">
+                <ul>
+                  <li>Increased front-line employee productivity by 40% through user research and service design to eliminate operational pain points.</li>
+                  <li>Collaborated with cross-functional stakeholders and technical specialists to define a long-term product vision and delivery process.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+          <article class="exp-row">
+            <p class="exp-dates">10.2019 – 10.2020</p>
+            <div>
+              <h3 class="exp-org">EFOOOD</h3>
+              <p class="exp-role">Product Designer · B2B2C Marketplace Startup</p>
+              <div class="exp-desc">
+                <ul>
+                  <li>Built service blueprints to integrate digital marketplace and physical logistics, ensuring a seamless end-to-end experience for 1M+ users.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+          <article class="exp-row">
+            <p class="exp-dates">05.2019 – 10.2019</p>
+            <div>
+              <h3 class="exp-org">2erguy</h3>
+              <p class="exp-role">Product Designer Intern · Software Agency</p>
+              <div class="exp-desc">
+                <ul>
+                  <li>Led an 8-person team to launch Taipei MRT prototypes, achieving a 4.7 rating and 3K downloads in 6 months.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <svg class="footer-clip-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <clipPath id="footer-arch-clip" clipPathUnits="objectBoundingBox">
+        <!-- Inverse of hero Q0.5,0.58 — same curve shape, flipped to top -->
+        <path d="M0,1 Q0.5,-1 1,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <footer id="contact">
+    <div class="footer-main">
+      <div class="footer-tagline">
+        <h2 class="footer-tagline__title">You made it to the bottom!</h2>
+        <p class="footer-tagline__sub">Each page features a pet I’ve cared for.</p>
+        <div class="footer-tagline__notes">
+          <p>Say hello to Ebu, the dog I grew up with. Even though she’s our little angel now, we still miss her every single day.</p>
+          <p>Ebu has been a sassy queen since she was a puppy. She loved walks by the riverside and was the biggest foodie you’ll ever meet. She was incredibly smart, but whether she listened was completely her decision.</p>
+          <p>Picking her favorite food was impossible because she loved almost everything. Well… except guava. She traveled all the way from Taiwan to the U.S. and then to Canada with me. It took her a little while to get used to the cold, but she filled every place she lived with love.</p>
+          <p>She’ll always be our sweetheart, forever and ever.</p>
+        </div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-brand">
+          <div class="footer-brand__name">Cynthia Cheng</div>
+          <p class="footer-brand__copy">© 2026 Cynthia Cheng. Built with Claude and Cursor.</p>
+        </div>
+        <div class="footer-photos">
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="images/footer/about-pet-1.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <video
+                src="videos/footer/about-pet-2.mp4?v=2"
+                muted
+                autoplay
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Pet video"
+              ></video>
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="images/footer/about-pet-3.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <div class="footer-link-label">Explore</div>
+            <a href="index.html#work" class="footer-link">Work</a>
+            <a href="ai-playground.html" class="footer-link">AI Playground</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-link-group">
+            <div class="footer-link-label">Connect</div>
+            <a href="https://www.linkedin.com/in/cynthia-cheng-aa296814b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Email</a>
+            <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="footer-link" target="_blank" rel="noopener noreferrer">Resume</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const wrap = document.getElementById('about-video');
+      const video = wrap && wrap.querySelector('video');
+      if (video) {
+        video.volume = 0.55;
+        const markReady = () => wrap.classList.add('has-media');
+        if (video.readyState >= 1) markReady();
+        video.addEventListener('loadedmetadata', markReady);
+        video.addEventListener('error', () => wrap.classList.remove('has-media'));
+      }
+
+      const cue = document.getElementById('about-play-cue');
+      if (!cue) return;
+      const path = document.getElementById('about-cue-path');
+      if (path && path.getTotalLength) {
+        const len = path.getTotalLength();
+        cue.style.setProperty('--cue-len', String(len));
+        path.style.strokeDasharray = String(len);
+        path.style.strokeDashoffset = String(len);
+      }
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const playCue = () => cue.classList.add('is-on');
+      if (reduce) {
+        playCue();
+        return;
+      }
+      if (!('IntersectionObserver' in window)) {
+        playCue();
+        return;
+      }
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            playCue();
+            io.disconnect();
+          }
+        },
+        { threshold: 0.35 }
+      );
+      io.observe(cue);
+    })();
+  </script>
+
+  <script src="js/skip-home-intro.js"></script>
+  <script src="js/footer-photos-spread.js"></script>
+</body>
+</html>

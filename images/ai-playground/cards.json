@@ -1,0 +1,122 @@
+[
+  {
+    "id": 0,
+    "src": "videos/freetime/paily.mp4",
+    "poster": "images/ai-playground/cards/paily.jpg",
+    "type": "video",
+    "title": "Analytics Dashboard",
+    "tools": "Claude Design . Claude Code . Cursor",
+    "color": "#a9a9ad",
+    "bg": "#f9f9fd"
+  },
+  {
+    "id": 1,
+    "src": "videos/freetime/leaflove-shop.mp4",
+    "poster": "images/ai-playground/cards/leaflove-shop.jpg",
+    "type": "video",
+    "title": "Plants E-commerce Website",
+    "tools": "Claude Design . Claude Code",
+    "color": "#7cb342",
+    "bg": "#e8f0dc"
+  },
+  {
+    "id": 2,
+    "src": "videos/freetime/leaflove-colors.mp4",
+    "poster": "images/ai-playground/cards/leaflove-colors.jpg",
+    "type": "video",
+    "title": "E-commerce Design System",
+    "tools": "Claude Code",
+    "color": "#c9a584",
+    "bg": "#f1ece4"
+  },
+  {
+    "id": 3,
+    "src": "videos/freetime/slot-1.mp4",
+    "poster": "images/ai-playground/cards/slot-1.jpg",
+    "type": "video",
+    "title": "Tetris",
+    "tools": "Claude Code . Cursor",
+    "color": "#131519",
+    "bg": "#d4d6da"
+  },
+  {
+    "id": 4,
+    "src": "videos/freetime/slot-4.mp4",
+    "poster": "images/ai-playground/cards/slot-4.jpg",
+    "type": "video",
+    "title": "London Photo Booth",
+    "tools": "Google AI Studio",
+    "color": "#2e1112",
+    "bg": "#e8d0d0"
+  },
+  {
+    "id": 5,
+    "src": "videos/freetime/paws-paths.mp4",
+    "poster": "images/ai-playground/cards/paws-paths.jpg",
+    "type": "video",
+    "title": "Pawfect App",
+    "tools": "Google Stitch",
+    "color": "#4e7d58",
+    "bg": "#d5e0d7"
+  },
+  {
+    "id": 6,
+    "src": "videos/freetime/leaflove-demo.mp4",
+    "poster": "images/ai-playground/cards/leaflove-demo.jpg",
+    "type": "video",
+    "title": "Angry Birds Game",
+    "tools": "Lovart . Figma Make",
+    "color": "#7aaea9",
+    "bg": "#d6ebe8"
+  },
+  {
+    "id": 7,
+    "src": "videos/freetime/slot-7.mp4",
+    "poster": "images/ai-playground/cards/slot-7.jpg",
+    "type": "video",
+    "title": "SmartPrep Website",
+    "tools": "Lovable",
+    "color": "#4e3b27",
+    "bg": "#e4d8c8"
+  },
+  {
+    "id": 8,
+    "src": "videos/freetime/slot-8.mp4",
+    "poster": "images/ai-playground/cards/slot-8.jpg",
+    "type": "video",
+    "title": "Personal Portfolio Website",
+    "tools": "Replit",
+    "color": "#16141c",
+    "bg": "#d2d0d8"
+  },
+  {
+    "id": 9,
+    "src": "videos/freetime/slot-9.mp4",
+    "poster": "images/ai-playground/cards/slot-9.jpg",
+    "type": "video",
+    "title": "Pop-up Book",
+    "tools": "Cursor",
+    "color": "#a59393",
+    "bg": "#ebe3e3"
+  },
+  {
+    "id": 10,
+    "src": "videos/freetime/slot-11.mp4",
+    "poster": "images/ai-playground/cards/slot-11.jpg",
+    "type": "video",
+    "title": "Holiday Tree",
+    "tools": "Google AI Studio",
+    "color": "#191e0f",
+    "bg": "#d4d8c8"
+  },
+  {
+    "id": 11,
+    "src": "videos/freetime/slot-10.mp4",
+    "poster": "images/ai-playground/cards/slot-10.jpg",
+    "type": "video",
+    "title": "Pop-up Castle",
+    "tools": "Gemini - 3.7 Flash",
+    "color": "#786a5f",
+    "bg": "#e4ddd6"
+  }
+]

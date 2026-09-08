@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#solution-scroll-root {
+  width: 100%;
+}

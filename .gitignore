@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+.claude/
+.cursor/
+images/_chk_*
+images/_inspect_*
+# Source captures — site uses compressed .mp4 (GitHub 100MB limit)
+*.mov

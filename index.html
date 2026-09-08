@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cynthia Cheng — Product Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Exposure";
+      src: url("fonts/Exposure-Trial-10.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Nav Sans";
+      src: url("fonts/NavSans.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Category Sans";
+      src: url("fonts/CategorySans.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      /* Reserve scrollbar space — prevents ~15px jump when overflow toggles */
+      scrollbar-gutter: stable;
+    }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      color: #222;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    /* ── Nav ── */
+    .nav {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 26px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Nav Sans", Inter, system-ui, sans-serif;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+    .nav-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: linear-gradient(95deg, #F7C873 0%, #F79E6B 38%, #F08A6E 62%, #E89AB0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: #222;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.18s;
+    }
+    .nav-link:hover { background: #f0f0f0; }
+
+    /* Mobile hamburger — hidden by default */
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+    }
+    .nav-burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #222;
+      border-radius: 2px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 88px 24px 72px;
+      text-align: center;
+    }
+    .hero-copy {
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 300;
+      font-style: normal;
+      font-synthesis: weight;
+      font-size: 24px;
+      line-height: 1.45;
+      letter-spacing: -0.02em;
+      color: rgba(45, 26, 10, 0.5);
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .hero-copy .text-dark {
+      color: #222222;
+      font-weight: 500;
+    }
+    .hero-copy .text-light {
+      color: rgba(45, 26, 10, 0.5);
+      font-weight: 300;
+    }
+    /* Natural wrap on mobile; forced 4 lines from tablet up */
+    .hero-line {
+      display: inline;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        padding: 104px 40px 96px;
+      }
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Scale so the longest line fits; tops out ~40px on tablet */
+        font-size: clamp(28px, calc((100vw - 80px) * 40 / 1320), 40px);
+        line-height: 1.45;
+      }
+      .hero-line {
+        display: block;
+        white-space: nowrap;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .hero {
+        padding: 112px 48px 104px;
+      }
+      .hero-copy {
+        /* Desktop headline ~48–50px */
+        font-size: clamp(40px, calc((100vw - 96px) * 50 / 1400), 50px);
+        line-height: 1.45;
+      }
+    }
+
+    /* Shared home rhythm: Selected Work cards ↔ Explore AI ↔ Footer arch */
+    :root {
+      /* work pad-bottom 64 + freetime pad-top 72 */
+      --home-stack-gap: 136px;
+    }
+
+    /* ── Work Section ── */
+    .work {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 22px 64px;
+    }
+    .work-heading {
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 40px;
+    }
+
+    /* ── Freetime gallery ── */
+    .freetime {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 72px 22px 0;
+    }
+    .freetime__header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .freetime__title {
+      margin: 0;
+      max-width: none;
+      white-space: nowrap;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #8a8a8a;
+    }
+    .freetime__title em {
+      font-style: normal;
+      font-weight: 400;
+      color: #1a1a1a;
+    }
+    .freetime__view-all {
+      flex-shrink: 0;
+      font-family: "Category Sans", Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #717171;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .freetime__view-all:hover {
+      color: #222;
+    }
+    .freetime__viewport {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      container-type: inline-size;
+      container-name: freetime;
+    }
+    .freetime__viewport::before,
+    .freetime__viewport::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: clamp(40px, 6vw, 80px);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .freetime__viewport::before {
+      left: 0;
+      background: linear-gradient(to right, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .freetime__viewport::after {
+      right: 0;
+      background: linear-gradient(to left, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .freetime__track {
+      display: flex;
+      width: max-content;
+      animation: freetime-marquee 50s linear infinite;
+      will-change: transform;
+    }
+    .freetime__track:hover {
+      animation-play-state: paused;
+    }
+    .freetime__group {
+      display: flex;
+      gap: 12px;
+      padding-right: 12px;
+    }
+    .freetime__item {
+      flex: 0 0 auto;
+      width: calc((100cqi - 36px) / 4);
+      min-width: 220px;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #e8e8e8;
+      position: relative;
+    }
+    .freetime__item video,
+    .freetime__item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .freetime__item img[src*="leaflove-colors"] {
+      object-position: left center;
+    }
+    @keyframes freetime-marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .freetime__track {
+        animation: none;
+      }
+    }
+
+    /* ── Project Grid ── */
+    .project-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    /* Desktop (≥1100): full-bleed with fluid side inset (tighter than fixed 240px
+       so mid-desktop doesn’t leave huge empty gutters). */
+    @media (min-width: 1100px) {
+      .nav,
+      .work,
+      .freetime,
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+      .project-grid {
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .project-card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    .project-card-inner {
+      position: relative;
+      overflow: hidden;
+      background: #f7f7f7;
+      border-radius: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 18px;
+      padding-top: 52px;
+      height: 421px;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    /* Must come after base .project-card-inner so it wins the cascade */
+    @media (min-width: 1100px) {
+      .project-card-inner:not(.has-cover) {
+        height: 632px; /* +0.5× (421 → 632) */
+      }
+    }
+    .project-card-inner:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+    .project-card-inner.single-phone {
+      gap: 0;
+    }
+    .project-card-inner.has-cover {
+      display: block;
+      padding: 0;
+      background: #f7f7f7;
+      /* Match cover art (~5126×3274) so object-fit:cover doesn’t zoom into UI-only crops */
+      height: auto;
+      aspect-ratio: 5126 / 3274;
+    }
+    .project-cover {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .phone-mockup {
+      position: relative;
+      flex: 0 0 auto;
+      background: #111;
+      border-radius: 26px;
+      padding: 5px;
+      width: 118px;
+      height: 401px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.14);
+    }
+    .phone-notch {
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 8px;
+      background: #111;
+      border-radius: 6px;
+      z-index: 2;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      background: repeating-linear-gradient(
+        45deg,
+        #e6e6e6,
+        #e6e6e6 9px,
+        #efefef 9px,
+        #efefef 18px
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-label {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px;
+      color: #9a9a9a;
+      letter-spacing: 0.02em;
+    }
+    .project-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #222;
+      letter-spacing: -0.01em;
+      margin-top: 18px;
+    }
+    .project-title--exposure {
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: 22px;
+    }
+    .project-date {
+      font-size: 14px;
+      font-weight: 400;
+      color: #717171;
+      margin-top: 5px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      --footer-bg: #FBF9F7;
+      --footer-arch: clamp(140px, 21vh, 260px);
+      position: relative;
+      background: var(--footer-bg);
+      color: #222;
+      /* White gap to arch peak = Selected Work cards → Explore AI */
+      margin-top: calc(var(--footer-arch) + var(--home-stack-gap));
+      /* Prevent child negative/transform layout from collapsing this margin */
+      padding-top: 1px;
+      overflow: visible;
+    }
+    /* Exact inverse of hero Q0.5,0.58 (same curvature, flipped) */
+    footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: var(--footer-arch);
+      background: var(--footer-bg);
+      clip-path: url(#footer-arch-clip);
+      pointer-events: none;
+      z-index: 0;
+    }
+    footer > * {
+      position: relative;
+      z-index: 1;
+    }
+    .footer-clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .footer-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      /* translateY does not collapse with footer margin (unlike margin-top) */
+      transform: translateY(calc(var(--footer-arch, 0px) * -0.35));
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: 22px;
+      padding-right: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 72px;
+    }
+    /* Must follow .footer-main base — earlier ≥1100 rule loses to this block’s max-width/padding */
+    @media (min-width: 1100px) {
+      .footer-main {
+        max-width: none;
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: clamp(48px, 7vw, 160px);
+        padding-right: clamp(48px, 7vw, 160px);
+      }
+    }
+    .footer-tagline {
+      max-width: 1120px; /* match case-study --content / .body measure */
+      width: 100%;
+      text-align: center;
+    }
+    .footer-tagline__title,
+    .footer-tagline__sub {
+      margin: 0;
+      font-family: "Exposure", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(28px, 3.2vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+    .footer-tagline__sub {
+      margin-top: 14px;
+      color: #8a8a8a;
+    }
+    /* Match case-study .body (Problem section) */
+    .footer-tagline__notes {
+      margin: 36px 0 0;
+      max-width: none;
+      width: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: 0;
+      color: #444;
+      text-align: left;
+    }
+    .footer-tagline__notes p {
+      margin: 0;
+    }
+    .footer-tagline__notes p + p {
+      margin-top: 1em;
+    }
+    .footer-row {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: clamp(24px, 4vw, 56px);
+      padding-bottom: 132px;
+      text-align: left;
+    }
+    .footer-brand {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* Sit a bit below the square — not bottom-aligned */
+      transform: translateY(100px);
+    }
+    .footer-brand__name {
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #222;
+      line-height: 1.2;
+    }
+    .footer-brand__copy {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #999;
+      white-space: nowrap;
+    }
+    .footer-photos {
+      --fp-w: min(360px, 34vw);
+      --fp-gap: clamp(28px, 3.2vw, 44px);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: var(--fp-gap);
+    }
+    .footer-polaroid {
+      flex: 0 0 auto;
+      width: var(--fp-w);
+      background: #fff;
+      padding: 10px;
+      position: relative;
+      box-shadow:
+        0 10px 28px rgba(40, 30, 20, 0.10),
+        0 2px 6px rgba(40, 30, 20, 0.06);
+      transition:
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        margin 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, margin;
+    }
+    /* Stacked: sides tuck behind the center card */
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(-1.6deg) translateX(10px);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: calc(-1 * (var(--fp-w) + var(--fp-gap)));
+      transform: rotate(1deg) translateX(-10px);
+    }
+    /* Spread: fan out to left / center / right */
+    .footer-photos.is-spread .footer-polaroid:nth-child(1) {
+      z-index: 1;
+      margin-right: 0;
+      transform: rotate(-2.2deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(2) {
+      z-index: 3;
+      transform: rotate(1.4deg);
+    }
+    .footer-photos.is-spread .footer-polaroid:nth-child(3) {
+      z-index: 2;
+      margin-left: 0;
+      transform: rotate(-0.8deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-polaroid {
+        transition: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1),
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        margin-left: 0;
+        margin-right: 0;
+        transform: none;
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(1) {
+        transform: rotate(-2.2deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(2) {
+        transform: rotate(1.4deg);
+      }
+      .footer-photos:not(.is-spread) .footer-polaroid:nth-child(3) {
+        transform: rotate(-0.8deg);
+      }
+    }
+    .footer-polaroid__photo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+    .footer-polaroid__photo img,
+    .footer-polaroid__photo video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .footer-links {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: flex-start;
+      justify-content: flex-end;
+      transform: translateY(100px);
+    }
+    /* Mid / mobile footer breakpoints → css/site-footer.css */
+    .footer-link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .footer-link-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .footer-link {
+      text-decoration: none;
+      font-size: 14px;
+      color: #717171;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: #222; }
+    /* Footer inset is set with nav/work in the ≥1100 block above */
+
+
+    /* ── Hidden (filter) ── */
+    .project-item[hidden] { display: none; }
+
+    /* ── Intro Loader ── */
+    .intro-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: #FCD9C8;
+      opacity: 1;
+      transition: opacity 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: auto;
+    }
+    .intro-loader.is-fading {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .intro-loader.is-done {
+      display: none;
+    }
+    .intro-loader__lottie {
+      width: 100%;
+      height: 100%;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .intro-loader__lottie svg {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* Hide Jitter watermark inside the Lottie SVG */
+    #lottie-container svg g[id*="watermark"],
+    #lottie-container svg g[class*="watermark"],
+    #lottie-container svg image[id*="watermark"] {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    body.intro-active,
+    body.entrance-lock {
+      overflow: hidden !important;
+      height: 100%;
+      overscroll-behavior: none;
+    }
+
+    /* ── Page entrance (post-Lottie) ── */
+    /* True viewport dead-center while lines stagger — fixed overlay, zero padding.
+       Nav stays in flow but is invisible; it must not push the staged hero down. */
+    .hero.is-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 0 !important; /* kill desktop 48px / any leaky side pads */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    .hero.is-stage .hero-copy {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: max-content;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      transform: none; /* keep GSAP free to animate Y on this node later */
+      line-height: 1.45;
+      z-index: 1;
+      pointer-events: none;
+    }
+    body.entrance-active .nav,
+    body.entrance-active .work,
+    body.entrance-active footer {
+      opacity: 0 !important;
+      visibility: hidden;
+      pointer-events: none !important;
+    }
+    body.entrance-active .hero-line {
+      opacity: 0;
+    }
+    body.entrance-active .hero-line:first-child {
+      transform: translateY(30px);
+    }
+    body.entrance-active .hero-line:not(:first-child) {
+      transform: translateY(18px);
+    }
+
+    /* ── Reveal / Motion ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .project-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+      /* footer mobile → css/site-footer.css */
+    }
+  </style>
+  <link rel="stylesheet" href="css/site-footer.css?v=7">
+</head>
+<body>
+
+  <!-- Full-screen intro (plays once per session) -->
+  <div class="intro-loader" id="intro-loader" aria-hidden="true" hidden>
+    <div class="intro-loader__lottie" id="lottie-container" role="img" aria-label="Loading"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-text">Cynthia Cheng</span>
+    </a>
+    <div class="nav-links">
+      <a href="#work" class="nav-link">Work</a>
+      <a href="ai-playground.html" class="nav-link">AI Playground</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="nav-link" target="_blank" rel="noopener noreferrer">Resume</a>
+      <a href="mailto:cynthiaproductdesigner@gmail.com" class="nav-link">Contact</a>
+    </div>
+    <button class="nav-burger" aria-label="Menu" onclick="document.querySelector('.nav-links').style.display = document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex'">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1 class="hero-copy">
+      <span class="hero-line"><span class="text-dark">Hello, I’m Cynthia,</span></span>
+      <span class="hero-line"><span class="text-light">I’m an</span> <span class="text-dark">award-winning product designer</span> <span class="text-light">blending</span></span>
+      <span class="hero-line"><span class="text-dark">strategic ownership</span> <span class="text-light">and</span> <span class="text-dark">AI-forward workflows</span> <span class="text-light">to</span></span>
+      <span class="hero-line"><span class="text-dark">raise the bar</span> <span class="text-light">for your product.</span></span>
+    </h1>
+  </header>
+
+  <!-- Work -->
+  <section class="work" id="work">
+    <div class="project-grid" id="project-grid">
+
+      <!-- Atlas Analytics -->
+      <div class="project-item reveal" data-category="selected">
+        <a
+          class="project-card-link"
+          href="gripp-rendezvoo.html"
+          data-expand-title="Driving Growth by Expanding into Manufacturing"
+          data-expand-image="images/atlas-wmb-dashboard.png?v=3"
+        >
+          <div class="project-card-inner has-cover">
+            <img
+              class="project-cover"
+              src="images/atlas-wmb-dashboard.png?v=3"
+              alt="Driving Growth by Expanding into Manufacturing — WMB dashboard and mobile app"
+              loading="eager"
+              fetchpriority="high"
+            >
+          </div>
+          <div class="project-title project-title--exposure">Driving Growth by Expanding into Manufacturing</div>
+          <div class="project-date">Gripp</div>
+        </a>
+      </div>
+
+      <!-- Mosaic Design System -->
+      <div class="project-item reveal" data-category="selected">
+        <a class="project-card-link" href="permissions.html">
+          <div class="project-card-inner has-cover">
+            <img
+              class="project-cover"
+              src="images/mosaic-design-system.png?v=5"
+              alt="Redesigning Invitation Permissions for Diverse Needs — GRIPP people, permissions, and invite flows"
+              loading="lazy"
+            >
+          </div>
+          <div class="project-title project-title--exposure">Redesigning Invitation Permissions for Diverse Needs</div>
+          <div class="project-date">Gripp</div>
+        </a>
+      </div>
+
+      <!-- Design system rebuild (formerly Pathway Onboarding) -->
+      <div class="project-item reveal" data-category="selected">
+        <a
+          class="project-card-link"
+          href="crop-circle-system.html"
+          data-expand-title="Rebuilding the Design System for UI Consistency"
+          data-expand-image="images/pathway-onboarding.png"
+        >
+          <div class="project-card-inner has-cover">
+            <img
+              class="project-cover"
+              src="images/pathway-onboarding.png"
+              alt="Rebuilding the Design System for UI Consistency — Crop Circle System"
+              loading="lazy"
+            >
+          </div>
+          <div class="project-title project-title--exposure">Rebuilding the Design System for UI Consistency</div>
+          <div class="project-date">Gripp</div>
+        </a>
+      </div>
+
+      <!-- WIWANT (formerly Beacon AI Assistant) -->
+      <div class="project-item reveal" data-category="ai" id="ai-playground">
+        <a
+          class="project-card-link"
+          href="wiwant.html"
+          data-expand-title="Meeting Wine Lovers' Needs for Business Success"
+          data-expand-image="images/wiwant-card.jpg?v=2"
+        >
+          <div class="project-card-inner has-cover">
+            <img
+              class="project-cover"
+              src="images/wiwant-card.jpg?v=2"
+              alt="Meeting Wine Lovers' Needs for Business Success — WIWANT mobile product screens"
+              loading="lazy"
+            >
+          </div>
+          <div class="project-title project-title--exposure">Meeting Wine Lovers' Needs for Business Success</div>
+          <div class="project-date">Syscode</div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Freetime -->
+  <section class="freetime reveal" id="freetime" aria-label="Freetime projects">
+    <div class="freetime__header">
+      <h2 class="freetime__title">Explore AI in my <em>freetime.</em></h2>
+      <a class="freetime__view-all" href="ai-playground.html">View all</a>
+    </div>
+    <div class="freetime__viewport">
+      <div class="freetime__track">
+        <div class="freetime__group">
+          <a class="freetime__item" href="ai-playground.html" aria-label="Analytics Dashboard — AI Playground">
+            <video src="videos/freetime/paily.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Plants E-commerce Website — AI Playground">
+            <video src="videos/freetime/leaflove-shop.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="E-commerce Design System — AI Playground">
+            <video src="videos/freetime/leaflove-colors.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Tetris — AI Playground">
+            <video src="videos/freetime/slot-1.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="London Photo Booth — AI Playground">
+            <video src="videos/freetime/slot-4.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Pawfect App — AI Playground">
+            <video src="videos/freetime/paws-paths.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Angry Birds Game — AI Playground">
+            <video src="videos/freetime/leaflove-demo.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="SmartPrep Website — AI Playground">
+            <video src="videos/freetime/slot-7.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Personal Portfolio Website — AI Playground">
+            <video src="videos/freetime/slot-8.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Pop-up Book — AI Playground">
+            <video src="videos/freetime/slot-9.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Holiday Tree — AI Playground">
+            <video src="videos/freetime/slot-11.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" aria-label="Pop-up Castle — AI Playground">
+            <video src="videos/freetime/slot-10.mp4" autoplay muted loop playsinline></video>
+          </a>
+        </div>
+        <div class="freetime__group" aria-hidden="true">
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/paily.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/leaflove-shop.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/leaflove-colors.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-1.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-4.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/paws-paths.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/leaflove-demo.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-7.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-8.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-9.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-11.mp4" autoplay muted loop playsinline></video>
+          </a>
+          <a class="freetime__item" href="ai-playground.html" tabindex="-1">
+            <video src="videos/freetime/slot-10.mp4" autoplay muted loop playsinline></video>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <svg class="footer-clip-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <clipPath id="footer-arch-clip" clipPathUnits="objectBoundingBox">
+        <!-- Inverse of hero Q0.5,0.58 — same curve shape, flipped to top -->
+        <path d="M0,1 Q0.5,-1 1,1 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+  <footer id="contact">
+    <div class="footer-main">
+      <div class="footer-tagline">
+        <h2 class="footer-tagline__title">You made it to the bottom!</h2>
+        <p class="footer-tagline__sub">Each page features a pet I’ve cared for.</p>
+        <div class="footer-tagline__notes">
+          <p>Say hello to Bambi, our little world traveler! She was rescued from Korea, made her way to Toronto, and now happily calls Seattle home.</p>
+          <p>Bambi is a little shy at first and likes to get to know people at her own pace. But after a few outdoor adventures or one cozy sleepover, she warms up quickly. Once you’re in her circle, you’re family.</p>
+          <p>We’ve had Bambi since she was 1.5 years old, and somehow she’s already 5. Around age 3, her sassy personality really came out, and she’s now a pro at selective hearing, especially when she’d rather stay curled up for a nap than go outside.</p>
+          <p>She’s shy, sweet, a little sassy, and completely herself. That’s our girl, Bambi.</p>
+        </div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-brand">
+          <div class="footer-brand__name">Cynthia Cheng</div>
+          <p class="footer-brand__copy">© 2026 Cynthia Cheng. Built with Claude and Cursor.</p>
+        </div>
+        <div class="footer-photos">
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="images/footer/pet-1.jpg" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <video
+                src="videos/footer/home-pet-2.mp4?v=5"
+                muted
+                autoplay
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Pet video"
+              ></video>
+            </div>
+          </div>
+          <div class="footer-polaroid">
+            <div class="footer-polaroid__photo">
+              <img src="images/footer/home-pet-3.jpg?v=1" alt="Pet photo" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <div class="footer-link-label">Explore</div>
+            <a href="#work" class="footer-link">Work</a>
+            <a href="ai-playground.html" class="footer-link">AI Playground</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-link-group">
+            <div class="footer-link-label">Connect</div>
+            <a href="https://www.linkedin.com/in/cynthia-cheng-aa296814b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:cynthiaproductdesigner@gmail.com" class="footer-link">Email</a>
+            <a href="https://drive.google.com/file/d/1KSl5AyfQWHbe7aciMb6AHXbLz39XYujf/view?usp=sharing" class="footer-link" target="_blank" rel="noopener noreferrer">Resume</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Intro loader (once per session) + cinematic page entrance ──
+    (function () {
+      const SESSION_KEY = 'cc-intro-played';
+      const EXPO_EASE = 'expoCushion';   // cubic-bezier(0.16, 1, 0.3, 1)
+      const SOFT_EASE = 'softCushion';   // cubic-bezier(0.25, 1, 0.5, 1)
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const loader = document.getElementById('intro-loader');
+      const lottieHost = document.getElementById('lottie-container');
+      const nav = document.querySelector('.nav');
+      const hero = document.querySelector('.hero');
+      const heroCopy = document.querySelector('.hero-copy');
+      const work = document.querySelector('.work');
+      const footer = document.querySelector('footer');
+      const heroLines = typeof gsap !== 'undefined'
+        ? gsap.utils.toArray('.hero-line')
+        : Array.from(document.querySelectorAll('.hero-line'));
+      const uiReveal = [nav, work, footer].filter(Boolean);
+
+      let pageEntranceStarted = false;
+      let dismissStarted = false;
+
+      if (typeof gsap !== 'undefined') {
+        if (typeof Flip !== 'undefined') gsap.registerPlugin(Flip);
+        if (typeof CustomEase !== 'undefined') {
+          gsap.registerPlugin(CustomEase);
+          CustomEase.create(EXPO_EASE, 'M0,0 C0.16,1 0.3,1 1,1');
+          CustomEase.create(SOFT_EASE, 'M0,0 C0.25,1 0.5,1 1,1');
+        }
+      }
+
+      const expoEase = (typeof CustomEase !== 'undefined') ? EXPO_EASE : 'expo.out';
+      const softEase = (typeof CustomEase !== 'undefined') ? SOFT_EASE : 'power3.out';
+
+      function markIntroPlayed() {
+        try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (_) {}
+      }
+
+      function hasPlayedIntro() {
+        try { return sessionStorage.getItem(SESSION_KEY) === '1'; } catch (_) { return false; }
+      }
+
+      /** Same-origin click from About / case study / etc. → skip intro */
+      function isInternalReturn() {
+        try {
+          if (!document.referrer) return false;
+          const ref = new URL(document.referrer);
+          return ref.origin === window.location.origin;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function whenWindowLoaded(fn) {
+        if (document.readyState === 'complete') {
+          fn();
+        } else {
+          window.addEventListener('load', fn, { once: true });
+        }
+      }
+
+      function lockScroll() {
+        document.body.classList.add('entrance-lock', 'intro-active');
+        document.documentElement.style.overflow = 'hidden';
+      }
+
+      function unlockScroll() {
+        document.body.classList.remove('entrance-lock', 'intro-active', 'entrance-active');
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      }
+
+      function showFinalLayout() {
+        unlockScroll();
+        if (loader) {
+          loader.classList.add('is-done');
+          loader.setAttribute('hidden', '');
+        }
+        if (hero) hero.classList.remove('is-stage');
+        if (typeof gsap !== 'undefined') {
+          gsap.set([...uiReveal, ...heroLines, heroCopy].filter(Boolean), {
+            clearProps: 'opacity,visibility,pointerEvents,transform,lineHeight,willChange',
+          });
+          gsap.set(heroLines, { opacity: 1, y: 0 });
+        } else {
+          heroLines.forEach(el => {
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+          });
+        }
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      }
+
+      function runPageEntrance() {
+        if (pageEntranceStarted) return;
+        pageEntranceStarted = true;
+
+        if (reduceMotion || typeof gsap === 'undefined') {
+          showFinalLayout();
+          return;
+        }
+
+        lockScroll();
+        document.body.classList.add('entrance-active');
+        document.body.classList.remove('intro-active');
+        if (hero) hero.classList.add('is-stage');
+
+        const settledLineHeight = 1.45;
+
+        const line1 = heroLines[0];
+        const laterLines = heroLines.slice(1);
+
+        // Prepare: keep chrome hidden, set organic start offsets
+        gsap.set(nav, { autoAlpha: 0 });
+        gsap.set(work, { autoAlpha: 0, y: 40, force3D: true });
+        gsap.set(footer, { autoAlpha: 0 });
+        if (line1) gsap.set(line1, { opacity: 0, y: 30, force3D: true, willChange: 'transform, opacity' });
+        if (laterLines.length) {
+          gsap.set(laterLines, { opacity: 0, y: 18, force3D: true, willChange: 'transform, opacity' });
+        }
+        if (heroCopy) {
+          gsap.set(heroCopy, {
+            x: 0,
+            y: 0,
+            lineHeight: 1.45,
+            force3D: true,
+            willChange: 'transform',
+          });
+        }
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            if (hero) hero.classList.remove('is-stage');
+            gsap.set([nav, work, footer, ...heroLines, heroCopy].filter(Boolean), {
+              clearProps: 'opacity,visibility,pointerEvents,transform,lineHeight,willChange',
+            });
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+            unlockScroll();
+          },
+        });
+
+        // ── Phase 2a: "Hello" drifts in with heavy decelerating cushion ──
+        if (line1) {
+          tl.to(line1, {
+            opacity: 1,
+            y: 0,
+            duration: 1.55,
+            ease: expoEase,
+            force3D: true,
+          }, 0);
+        }
+
+        // ── Phase 2b: lines 2–4 — soft stagger, subtler travel ──
+        if (laterLines.length) {
+          tl.to(laterLines, {
+            opacity: 1,
+            y: 0,
+            duration: 1.3,
+            stagger: 0.85,
+            ease: expoEase,
+            force3D: true,
+          }, 0.85);
+        }
+
+        // ── Phase 3: Y-ONLY slide-up (no Flip / no X motion → no horizontal wobble) ──
+        tl.add('slide', '+=0.45');
+        tl.add(() => {
+          if (!hero || !heroCopy) return;
+
+          document.body.classList.remove('entrance-active');
+          gsap.set(nav, { autoAlpha: 0 });
+          gsap.set(work, { autoAlpha: 0, y: 40, force3D: true });
+          gsap.set(footer, { autoAlpha: 0 });
+
+          // Measure Y while still viewport-centered (flex), then switch to final layout
+          const fromTop = heroCopy.getBoundingClientRect().top;
+          hero.classList.remove('is-stage');
+          const toTop = heroCopy.getBoundingClientRect().top;
+          const dy = fromTop - toTop;
+
+          // Invert on Y only — X stays locked at 0 for the whole flight
+          gsap.set(heroCopy, { x: 0, y: dy, force3D: true });
+
+          gsap.to(heroCopy, {
+            lineHeight: settledLineHeight,
+            duration: 1.2,
+            ease: softEase,
+          });
+
+          return gsap.to(heroCopy, {
+            y: 0,
+            x: 0,
+            duration: 1.2,
+            ease: softEase,
+            force3D: true,
+          });
+        }, 'slide');
+
+        // Nav: only after text is ~85% of the way up (1.2s * 0.85 ≈ 1.02s)
+        tl.to(nav, {
+          autoAlpha: 1,
+          duration: 0.8,
+          ease: softEase,
+        }, 'slide+=1.02');
+
+        // Work cards + filters: organic glide from below, in parallel with settle
+        tl.to(work, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 1.0,
+          ease: softEase,
+          force3D: true,
+        }, 'slide+=0.15');
+
+        tl.to(footer, {
+          autoAlpha: 1,
+          duration: 0.9,
+          ease: softEase,
+        }, 'slide+=0.3');
+      }
+
+      function dismissLoader() {
+        if (dismissStarted) return;
+        dismissStarted = true;
+
+        markIntroPlayed();
+        lockScroll();
+
+        if (!loader) {
+          runPageEntrance();
+          return;
+        }
+
+        // Crossfade: pink fades; first line begins near the end of the fade
+        loader.classList.add('is-fading');
+
+        const cleanupLoader = () => {
+          loader.classList.add('is-done');
+          loader.setAttribute('hidden', '');
+          loader.removeEventListener('transitionend', onFadeEnd);
+        };
+
+        const onFadeEnd = (e) => {
+          if (e.target !== loader || e.propertyName !== 'opacity') return;
+          cleanupLoader();
+        };
+
+        loader.addEventListener('transitionend', onFadeEnd);
+        setTimeout(cleanupLoader, 650);
+
+        // Start hero ~0.32s into the fade → pink still soft when "Hello" drifts in
+        setTimeout(() => {
+          runPageEntrance();
+        }, 320);
+      }
+
+      function playIntro() {
+        if (!loader || !lottieHost || typeof lottie === 'undefined') {
+          markIntroPlayed();
+          runPageEntrance();
+          return;
+        }
+
+        loader.removeAttribute('hidden');
+        lockScroll();
+        document.body.classList.add('entrance-active');
+
+        const anim = lottie.loadAnimation({
+          container: lottieHost,
+          renderer: 'svg',
+          loop: false,
+          autoplay: true,
+          path: 'intro.json',
+          rendererSettings: {
+            preserveAspectRatio: 'xMidYMid slice',
+            clearCanvas: true,
+            progressiveLoad: true,
+            hideOnTransparent: true,
+          },
+        });
+
+        anim.addEventListener('complete', dismissLoader);
+        anim.addEventListener('data_failed', dismissLoader);
+        setTimeout(dismissLoader, 6000);
+      }
+
+      const skipIntro = hasPlayedIntro() || reduceMotion || isInternalReturn();
+
+      if (skipIntro) {
+        markIntroPlayed();
+        if (loader) {
+          loader.classList.add('is-done');
+          loader.setAttribute('hidden', '');
+        }
+        unlockScroll();
+        // Don’t wait for `load` — return navigations often fire this script after load.
+        showFinalLayout();
+        whenWindowLoaded(showFinalLayout);
+      } else {
+        lockScroll();
+        document.body.classList.add('entrance-active');
+        whenWindowLoaded(playIntro);
+      }
+
+      // Logo on home: stay on final layout, scroll to top (never re-run intro)
+      document.querySelectorAll('.nav-logo').forEach((logo) => {
+        logo.addEventListener('click', (e) => {
+          const href = logo.getAttribute('href') || '';
+          if (href === '#' || href === '' || href === 'index.html' || href === './' || href === '/') {
+            e.preventDefault();
+            markIntroPlayed();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (window.location.hash) {
+              history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+          }
+        });
+      });
+    })();
+  </script>
+
+  <script src="js/footer-photos-spread.js"></script>
+</body>
+</html>
