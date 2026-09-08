@@ -19,7 +19,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="preload" as="image" href="images/permissions-hero.png?v=2" fetchpriority="high">
+  <link rel="preload" as="image" href="images/permissions-hero.jpg?v=1" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -72,8 +72,8 @@
       margin: 0;
       padding: 0;
       width: 100%;
-      /* Dark underlay while page entrance is pending */
-      background: #1a1a1a;
+      /* Light underlay while page entrance is pending (avoid black flash) */
+      background: #fff;
       /* Reserve scrollbar space — prevents layout jump when overflow toggles */
       scrollbar-gutter: stable;
     }
@@ -161,7 +161,7 @@
       opacity: 0;
       transform: scale(1.03);
       transform-origin: center center;
-      background: #1a1a1a;
+      background: #fff;
       will-change: opacity, transform;
     }
     .page-reveal.is-hydrated,
@@ -1864,7 +1864,7 @@
   <header class="case-hero">
     <img
       class="case-hero__media"
-      src="images/permissions-hero.png?v=2"
+      src="images/permissions-hero.jpg?v=1"
       alt=""
       aria-hidden="true"
       fetchpriority="high"

@@ -31,19 +31,27 @@ if (page) {
 
   const preloadHero = async () => {
     if (!heroImg) return;
-    if (!heroImg.complete) {
-      await new Promise((resolve) => {
-        heroImg.addEventListener('load', resolve, { once: true });
-        heroImg.addEventListener('error', resolve, { once: true });
-      });
-    }
-    try {
-      if (typeof heroImg.decode === 'function') {
-        await heroImg.decode();
+    const waitLoad = new Promise((resolve) => {
+      if (heroImg.complete) {
+        resolve();
+        return;
       }
-    } catch {
-      /* continue */
-    }
+      heroImg.addEventListener('load', resolve, { once: true });
+      heroImg.addEventListener('error', resolve, { once: true });
+    });
+    // Don't hold a blank page for large heroes — start reveal quickly.
+    await Promise.race([
+      waitLoad.then(async () => {
+        try {
+          if (typeof heroImg.decode === 'function') {
+            await heroImg.decode();
+          }
+        } catch {
+          /* continue */
+        }
+      }),
+      new Promise((resolve) => setTimeout(resolve, 280)),
+    ]);
   };
 
   const waitTwoFrames = () =>
