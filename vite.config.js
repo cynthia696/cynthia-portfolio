@@ -35,6 +35,7 @@ export default defineConfig(({ command }) => ({
   // Relative base so GitHub Pages (project or user site) resolves assets correctly.
   base: command === 'build' ? './' : '/',
   plugins: [react(), copyRuntimeAssets()],
+  assetsInclude: ['**/*.mov'],
   server: {
     open: '/',
   },

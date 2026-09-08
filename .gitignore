@@ -10,4 +10,8 @@ images/_chk_*
 images/_inspect_*
 # Source captures — site uses compressed .mp4 (GitHub 100MB limit)
 *.mov
+!images/mobile-demo-*.mov
+!images/desktop-demo-2.mov
+images/solution-webm-originals/
+.tmp-frames/
 .github/workflows/

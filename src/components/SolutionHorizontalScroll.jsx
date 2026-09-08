@@ -5,10 +5,15 @@ import card1Bg from '../../images/solution-card1-bg.png';
 import card3Bg from '../../images/solution-card3-bg.png';
 import card5Bg from '../../images/solution-card5-bg.png';
 import mobileDemo1 from '../../images/mobile-demo-1.webm';
+import mobileDemo1Hevc from '../../images/mobile-demo-1.mov';
 import mobileDemo3 from '../../images/mobile-demo-3.webm';
+import mobileDemo3Hevc from '../../images/mobile-demo-3.mov';
 import mobileDemo4 from '../../images/mobile-demo-4.webm';
+import mobileDemo4Hevc from '../../images/mobile-demo-4.mov';
 import mobileDemo5 from '../../images/mobile-demo-5.webm';
+import mobileDemo5Hevc from '../../images/mobile-demo-5.mov';
 import desktopDemo2 from '../../images/desktop-demo-2.webm';
+import desktopDemo2Hevc from '../../images/desktop-demo-2.mov';
 import permissionsFlexible1 from '../../images/permissions-flexible-group-1.png';
 import permissionsFlexible2 from '../../images/permissions-flexible-group-2.png';
 import permissionsDirectReporting from '../../images/permissions-direct-reporting.png';
@@ -28,6 +33,7 @@ const autoCollectCustomerDataCard = {
     'Before, customer data was manual. Now, warranty registration and one-tap scanning automatically link customers to assets with no paperwork.',
   image: card1Bg,
   video: mobileDemo1,
+  videoHevc: mobileDemo1Hevc,
   hasAlpha: true,
   type: 'standard',
 };
@@ -38,6 +44,7 @@ const centralizedClientInformationCard = {
     'Before, Kristan juggled WhatsApp, iMessage, and Excel for clients. Now reports and add-ons live in one place, saving her 35% of her time every day.',
   background: 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)',
   video: desktopDemo2,
+  videoHevc: desktopDemo2Hevc,
   hasAlpha: true,
   type: 'desktop',
 };
@@ -57,6 +64,7 @@ export const defaultSolutionCards = [
     description: 'Customers can report issues directly to manufacturers, who can view and resolve all reports in one place instead of juggling calls, emails, and messages.',
     image: card3Bg,
     video: mobileDemo3,
+    videoHevc: mobileDemo3Hevc,
     hasAlpha: true,
     type: 'standard',
   },
@@ -66,6 +74,7 @@ export const defaultSolutionCards = [
     description: 'August can investigate issues directly and message customers for additional details, including real-time photos and videos—without relying on customer support.',
     background: 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)',
     video: mobileDemo4,
+    videoHevc: mobileDemo4Hevc,
     hasAlpha: true,
     type: 'standard',
   },
@@ -75,6 +84,7 @@ export const defaultSolutionCards = [
     description: 'Manufacturers can preset maintenance routines while customers simply log usage. The system alerts both sides when service is due, extending product life and strengthening customer relationships.',
     image: card5Bg,
     video: mobileDemo5,
+    videoHevc: mobileDemo5Hevc,
     hasAlpha: true,
     type: 'standard',
   },
@@ -91,6 +101,7 @@ export const permissionsSolutionCards = [
     description:
       'Based on client needs, Gripp can choose the right permission level when setting up client accounts.',
     video: undefined,
+    videoHevc: undefined,
     mediaImage: permissionsFlexible1,
     hasAlpha: false,
   },
@@ -101,6 +112,7 @@ export const permissionsSolutionCards = [
     description:
       'Managers can now define account types for new hires and assign relevant assets and groups during onboarding.',
     video: undefined,
+    videoHevc: undefined,
     mediaImage: permissionsFlexible2,
     hasAlpha: false,
   },
@@ -192,7 +204,6 @@ function SolutionCard({ card }) {
   const isPhoneShot = card.type === 'phone-shot';
   const isWidePhones = card.type === 'wide-phones';
   const isLargePhone = card.type === 'standard';
-  const blendClass = card.hasAlpha ? '' : 'mix-blend-screen';
   const hasImageBackground = Boolean(card.image) && !isPhoneShot;
   const phoneStillImages = card.mediaImages?.length
     ? card.mediaImages
@@ -200,21 +211,24 @@ function SolutionCard({ card }) {
       ? [card.mediaImage]
       : [];
 
-  // Card 5’s source video frames the phone slightly smaller — modest bump to match 3 & 4.
+  // Oversized landscape frames: center-crop so the device fills the card.
+  // Phone content is ~28% of frame width — ~980–1050px display keeps it large.
   const mediaClass = card.id === 5
-    ? 'w-[1065px] max-w-none'
+    ? 'w-[980px] max-w-none'
     : isLargePhone
-      ? 'w-[1050px] max-w-none'
+      ? 'w-[980px] max-w-none'
       : isDesktop
-        ? 'w-[82%] max-w-[880px] origin-bottom scale-[1.35]'
-        : 'w-[72%] max-w-[300px] origin-bottom scale-150';
+        ? 'w-[min(96%,960px)] max-w-[960px]'
+        : 'w-[min(90%,420px)] max-w-[420px]';
 
   const mediaBottomClass =
-    card.id === 5
-      ? 'bottom-1'
+    card.id === 1 || card.id === 3 || card.id === 4 || card.id === 5
+      ? 'bottom-10'
       : isLargePhone
-        ? 'bottom-5'
-        : 'bottom-0';
+        ? 'bottom-0'
+        : isDesktop
+          ? 'bottom-8'
+          : 'bottom-0';
 
   // WIWANT: bare phone mockups side-by-side — no card chrome, no captions
   if (isPhoneShot) {
@@ -242,29 +256,30 @@ function SolutionCard({ card }) {
             : 'w-[435px] aspect-[9/16]',
       ].join(' ')}
     >
-      {/* Card background */}
-      {hasImageBackground ? (
-        <img
-          src={card.image}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      ) : (
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{ background: card.background || 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)' }}
-        />
-      )}
+      {/* Clipped card chrome */}
+      <div className="absolute inset-0">
+        {hasImageBackground ? (
+          <img
+            src={card.image}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{ background: card.background || 'linear-gradient(180deg, #F8F8F8 0%, #EDEDED 100%)' }}
+          />
+        )}
 
-      {/* Top scrim — only for image-background cards */}
-      {hasImageBackground && (
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-48 bg-gradient-to-b from-black/55 to-transparent"
-          aria-hidden="true"
-        />
-      )}
+        {hasImageBackground && (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-48 bg-gradient-to-b from-black/55 to-transparent"
+            aria-hidden="true"
+          />
+        )}
+      </div>
 
       {/* Top text */}
       <div className={[
@@ -285,29 +300,27 @@ function SolutionCard({ card }) {
         </p>
       </div>
 
-      {/* Media: bottom-centered video or still, clipped by card overflow-hidden */}
+      {/* True-alpha videos: HEVC/MOV for Safari, WebM for Chrome/Firefox */}
       {card.video && (
         <div
           className={[
-            'absolute left-1/2 z-[2] -translate-x-1/2',
+            'pointer-events-none absolute left-1/2 z-[2] -translate-x-1/2',
             mediaBottomClass,
             mediaClass,
           ].join(' ')}
         >
           <video
-            className={[
-              'h-auto w-full object-contain',
-              isLargePhone ? '[transform:translateZ(0)]' : '',
-              blendClass,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            src={card.video}
+            className="h-auto w-full object-contain object-bottom"
             autoPlay
             muted
             loop
             playsInline
-          />
+          >
+            {card.videoHevc ? (
+              <source src={card.videoHevc} type='video/mp4; codecs="hvc1"' />
+            ) : null}
+            <source src={card.video} type="video/webm" />
+          </video>
         </div>
       )}
       {!card.video && phoneStillImages.length > 0 && (
