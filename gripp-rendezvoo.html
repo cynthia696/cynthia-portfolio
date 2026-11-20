@@ -1168,6 +1168,14 @@
     }
     .compare-card--before .compare-card__body { border-bottom-color: var(--before); }
     .compare-card--after .compare-card__body { border-bottom-color: var(--after); }
+    /* This pair only: shorter copy would leave the accent above the card edge */
+    .compare-card--pin-accent {
+      display: flex;
+      flex-direction: column;
+    }
+    .compare-card--pin-accent .compare-card__body {
+      flex: 1 1 auto;
+    }
     .compare-card__label {
       font-size: 12px;
       font-weight: 700;
@@ -1960,9 +1968,9 @@
       </div>
 
       <div class="compare-row">
-        <article class="compare-card compare-card--before">
+        <article class="compare-card compare-card--before compare-card--pin-accent">
           <div class="compare-card__media">
-            <img src="./assets/before-mobile-clipped-BkRL3bjL.png" alt="Before — mobile asset setup felt like a clipped website">
+            <img src="./assets/m2-4-BSOEl7ut.png" alt="Before — asset setup serial number entered manually">
           </div>
           <div class="compare-card__body">
             <p class="compare-card__label">Before</p>
@@ -1972,7 +1980,7 @@
         </article>
         <article class="compare-card compare-card--after">
           <div class="compare-card__media">
-            <img src="./assets/after-mobile-field-focus-DT8GCIE-.png" alt="After — field-first entry and focus on serial number">
+            <img src="./assets/m2-5-tLLozTZH.png" alt="After — asset setup serial number with camera text recognition">
           </div>
           <div class="compare-card__body">
             <p class="compare-card__label">After</p>
@@ -1985,7 +1993,7 @@
       <div class="compare-row">
         <article class="compare-card compare-card--before">
           <div class="compare-card__media">
-            <img src="./assets/before-mobile-detail-cLBN4kGW.png" alt="Before — warranty registration detail screen buried context">
+            <img src="./assets/m3-2-DqT0wN_J.png" alt="Before — warranty registration customer information form">
           </div>
           <div class="compare-card__body">
             <p class="compare-card__label">Before</p>
@@ -1995,7 +2003,7 @@
         </article>
         <article class="compare-card compare-card--after">
           <div class="compare-card__media">
-            <img src="./assets/after-mobile-detail-card-C_6FJL5p.png" alt="After — photo, status, and action in one card">
+            <img src="./assets/m4-2-D4yMScaK.png" alt="After — asset screen with warranty registration highlighted">
           </div>
           <div class="compare-card__body">
             <p class="compare-card__label">After</p>
